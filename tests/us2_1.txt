@@ -1,0 +1,49 @@
+# User Story 2 - Criação/Edição de perfil
+# Permita a um usuário cadastrado do Jackut criar/editar atributos de seu perfil. Ele deve poder modificar qualquer atributo do perfil 
+# ou preencher um atributo inexistente.
+
+zerarSistema
+
+expectError "Usuário não cadastrado." editarPerfil id=${id1} atributo=descricao valor="Quem souber, me diga."
+
+criarUsuario login=jpsauve senha=sauvejp nome="Jacques Sauve"
+
+# o usuário não é obrigado a preencher qualquer dos atributos do perfil; novos atributos podem ser inventados
+
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=descricao
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=estadoCivil
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=aniversario
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=filhos
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=idiomas
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=cidadeNatal
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=estilo
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=fumo
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=bebo
+expectError "Atributo não preenchido." getAtributoUsuario login=jpsauve atributo=moro
+
+id1=abrirSessao login=jpsauve senha=sauvejp
+editarPerfil id=${id1} atributo=descricao valor="Quem souber, me diga."
+editarPerfil id=${id1} atributo=estadoCivil valor="casado(a)"
+editarPerfil id=${id1} atributo=aniversario valor="05/02"
+editarPerfil id=${id1} atributo=filhos valor="sim, moram comigo."
+editarPerfil id=${id1} atributo=idiomas valor="ingles, frances, portugues"
+editarPerfil id=${id1} atributo=cidadeNatal valor="Hull, Canada"
+editarPerfil id=${id1} atributo=estilo valor="casual"
+editarPerfil id=${id1} atributo=fumo valor="nao"
+editarPerfil id=${id1} atributo=bebo valor="socialmente"
+editarPerfil id=${id1} atributo=moro valor="com companheiro(a)"
+
+expect "Jacques Sauve" getAtributoUsuario login=jpsauve atributo=nome
+expect "Quem souber, me diga." getAtributoUsuario login=jpsauve atributo=descricao
+expect "casado(a)" getAtributoUsuario login=jpsauve atributo=estadoCivil
+expect "05/02" getAtributoUsuario login=jpsauve atributo=aniversario
+expect "sim, moram comigo." getAtributoUsuario login=jpsauve atributo=filhos
+expect "ingles, frances, portugues" getAtributoUsuario login=jpsauve atributo=idiomas
+expect "Hull, Canada" getAtributoUsuario login=jpsauve atributo=cidadeNatal
+expect "casual" getAtributoUsuario login=jpsauve atributo=estilo
+expect "nao" getAtributoUsuario login=jpsauve atributo=fumo
+expect "socialmente" getAtributoUsuario login=jpsauve atributo=bebo
+expect "com companheiro(a)" getAtributoUsuario login=jpsauve atributo=moro
+
+encerrarSistema
+#quit

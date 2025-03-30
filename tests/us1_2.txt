@@ -1,0 +1,14 @@
+# User Story 1 - Criação de conta - verificacao de persistencia
+
+# ao iniciar, os dados devem estar presentes pois foram recuperados de arquivo ou banco de dados, etc.
+expect "Jacques Sauve" getAtributoUsuario login=jpsauve atributo=nome
+abrirSessao login=jpsauve senha=sauvejp
+
+expect "Jacques Sauve" getAtributoUsuario login=jpsauve2 atributo=nome
+abrirSessao login=jpsauve2 senha=sauvejp
+
+expect "" getAtributoUsuario login=jpsauve3 atributo=nome
+abrirSessao login=jpsauve3 senha=3sauvejp
+
+encerrarSistema
+#quit

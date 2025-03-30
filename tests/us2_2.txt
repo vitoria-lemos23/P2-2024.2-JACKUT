@@ -1,0 +1,18 @@
+# User Story 2 - Criação/Edição de perfil - Verificação de persistência
+
+abrirSessao login=jpsauve senha=sauvejp
+expect "Jacques Sauve" getAtributoUsuario login=jpsauve atributo=nome
+expect "Quem souber, me diga." getAtributoUsuario login=jpsauve atributo=descricao
+expect "casado(a)" getAtributoUsuario login=jpsauve atributo=estadoCivil
+expect "05/02" getAtributoUsuario login=jpsauve atributo=aniversario
+expect "sim, moram comigo." getAtributoUsuario login=jpsauve atributo=filhos
+expect "ingles, frances, portugues" getAtributoUsuario login=jpsauve atributo=idiomas
+expect "Hull, Canada" getAtributoUsuario login=jpsauve atributo=cidadeNatal
+expect "casual" getAtributoUsuario login=jpsauve atributo=estilo
+expect "nao" getAtributoUsuario login=jpsauve atributo=fumo
+expect "socialmente" getAtributoUsuario login=jpsauve atributo=bebo
+expect "com companheiro(a)" getAtributoUsuario login=jpsauve atributo=moro
+
+encerrarSistema
+#quit
+

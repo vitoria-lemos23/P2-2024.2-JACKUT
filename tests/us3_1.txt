@@ -1,0 +1,73 @@
+# User Story 3 - Adição de amigos
+# Permita a um usuário cadastrado do Jackut adicionar outro usuário como amigo, o que faz o sistema enviar-lhe um convite. O relacionamento só é
+# efetivado quando o outro usuário o adicionar de volta.
+
+zerarSistema
+
+criarUsuario login=jpsauve senha=sauvejp nome="Jacques Sauve"
+criarUsuario login=oabath senha=abatho nome="Osorio Abath"
+
+expect false ehAmigo login=jpsauve amigo=oabath
+expect false ehAmigo login=oabath amigo=jpsauve
+
+id1=abrirSessao login=jpsauve senha=sauvejp
+adicionarAmigo id=${id1} amigo=oabath
+
+expectError "Usuário já está adicionado como amigo, esperando aceitação do convite." adicionarAmigo id=${id1} amigo=oabath
+
+expect false ehAmigo login=jpsauve amigo=oabath
+expect false ehAmigo login=oabath amigo=jpsauve
+
+id2=abrirSessao login=oabath senha=abatho
+adicionarAmigo id=${id2} amigo=jpsauve
+
+expect true ehAmigo login=jpsauve amigo=oabath
+expect true ehAmigo login=oabath amigo=jpsauve
+
+expect {oabath} getAmigos login=jpsauve
+expect {jpsauve} getAmigos login=oabath
+
+criarUsuario login=jdoe senha=abc nome="John Doe"
+
+expect false ehAmigo login=jdoe amigo=oabath
+expect false ehAmigo login=jdoe amigo=jpsauve
+expect false ehAmigo login=oabath amigo=jdoe
+expect false ehAmigo login=jpsauve amigo=jdoe
+
+id3=abrirSessao login=jdoe senha=abc
+adicionarAmigo id=${id3} amigo=jpsauve
+adicionarAmigo id=${id3} amigo=oabath
+
+expect false ehAmigo login=jdoe amigo=oabath
+expect false ehAmigo login=jdoe amigo=jpsauve
+expect false ehAmigo login=oabath amigo=jdoe
+expect false ehAmigo login=jpsauve amigo=jdoe
+
+expect {} getAmigos login=jdoe
+expect {oabath} getAmigos login=jpsauve
+expect {jpsauve} getAmigos login=oabath
+
+adicionarAmigo id=${id1} amigo=jdoe
+adicionarAmigo id=${id2} amigo=jdoe
+
+expect true ehAmigo login=jdoe amigo=oabath
+expect true ehAmigo login=jdoe amigo=jpsauve
+expect true ehAmigo login=oabath amigo=jdoe
+expect true ehAmigo login=jpsauve amigo=jdoe
+
+expect {jpsauve,oabath} getAmigos login=jdoe
+expect {oabath,jdoe} getAmigos login=jpsauve
+expect {jpsauve,jdoe} getAmigos login=oabath
+
+# Tratamento de erros de adição de amigos
+
+expectError "Usuário já está adicionado como amigo." adicionarAmigo id=${id1} amigo=oabath
+expectError "Usuário já está adicionado como amigo." adicionarAmigo id=${id2} amigo=jpsauve
+
+expectError "Usuário não cadastrado." adicionarAmigo id=${id1} amigo=qwerty
+expectError "Usuário não cadastrado." adicionarAmigo id=${idx} amigo=jpsauve
+
+expectError "Usuário não pode adicionar a si mesmo como amigo." adicionarAmigo id=${id1} amigo=jpsauve
+
+encerrarSistema
+#quit
