@@ -7,7 +7,7 @@ import java.util.*;
 public class Facade implements Serializable {
 
     private static final long serialVersionUID = 2L;
-    private static final String ARQUIVO_DADOS = "BancoDeDados.dat";
+    private static final String ARQUIVO_DADOS = "arquivo.dat";
     private List<Users> usersList = new ArrayList<>();
     private List<Sessao> sessoesList = new ArrayList<>();
 
