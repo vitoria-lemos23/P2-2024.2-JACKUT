@@ -1,157 +1,155 @@
 package br.ufal.ic.p2.jackut;
 
 import br.ufal.ic.p2.jackut.Exeptions.*;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Jackut implements Serializable {
     private static final long serialVersionUID = 2L;
     private static final String ARQUIVO_DADOS = "arquivo.dat";
-    private List<Users> usersList = new ArrayList<>();
-    private List<Sessao> sessoesList;
 
-    // Classe interna para substituir o Map de sessões
-    private static class Sessao implements Serializable {
-        private final String idSessao;
-        private final String login;
-
-        public Sessao(String idSessao, String login) {
-            this.idSessao = idSessao;
-            this.login = login;
-        }
-    }
-
+    private Map<String, Users> usuarios;
+    private Map<String, String> sessoes;
+    private Map<String, String> loginParaSessao;
 
     public Jackut() {
-        this.usersList = new ArrayList<>();
-        this.sessoesList = new ArrayList<>();
+        this.usuarios = new HashMap<>();
+        this.sessoes = new HashMap<>();
+        this.loginParaSessao = new HashMap<>();
     }
 
     public void zerarSistema() {
-        this.usersList = new ArrayList<>();
-        this.sessoesList = new ArrayList<>();
+        usuarios.clear();
+        sessoes.clear();
+        loginParaSessao.clear();
     }
 
-    public String getAtributoUsuario(String login, String atributo)
-            throws UsuarioNaoEncontradoException, AtributoNaoPreenchidoException {
-
-        Users usuario = buscarUsuario(login);
-
-        if ("nome".equalsIgnoreCase(atributo)) {
-            return usuario.getNome();
+    public static Jackut iniciarSistema() {
+        File arquivo = new File(ARQUIVO_DADOS);
+        if (arquivo.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ARQUIVO_DADOS))) {
+                return (Jackut) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Erro ao carregar dados: " + e.getMessage());
+            }
         }
-
-        String valor = usuario.getAtributo(atributo);
-
-        if (valor == null || valor.isEmpty()) {
-            throw new AtributoNaoPreenchidoException();
-        }
-
-        return valor;
+        return new Jackut();
     }
-
-    public void adicionarAmigo(String idSessao, String amigo)
-            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption,
-            AmigoDeSiExeption, AmigoPendenteException, AmigoJaExistenteException {
-
-        // Validações iniciais
-        if (idSessao == null || idSessao.trim().isEmpty()) {
-            throw new UsuarioNaoEncontradoException();
-        }
-        validarSessao(idSessao);
-
-        Users usuarioAtual = getUsuarioPorSessao(idSessao);
-        Users usuarioAmigo = buscarUsuario(amigo);
-
-        // Verifica auto-amizade
-        if (usuarioAtual.getLogin().equals(amigo)) {
-            throw new AmigoDeSiExeption();
-        }
-
-        // Verifica se já é amigo confirmado
-        if (usuarioAtual.ehAmigo(amigo)) {
-            throw new AmigoJaExistenteException();
-        }
-
-        // Verifica solicitação pendente
-        if (usuarioAtual.getSolicitacoesPendentes().contains(amigo)) {
-            throw new AmigoPendenteException();
-        }
-
-        // Verifica se o amigo já enviou solicitação
-        if (usuarioAmigo.getSolicitacoesPendentes().contains(usuarioAtual.getLogin())) {
-            // Aceita a amizade mutuamente
-            usuarioAtual.aceitarSolicitacaoAmizade(amigo);
-            usuarioAmigo.aceitarSolicitacaoAmizade(usuarioAtual.getLogin());
-        } else {
-            // Adiciona solicitação pendente
-            usuarioAmigo.adicionarSolicitacaoAmizade(usuarioAtual.getLogin());
-        }
-    }
-
 
     public void criarUsuario(String login, String senha, String nome)
             throws LoginInvalidoExeption, SenhaInvalidaExeption, LoginJaExistenteException {
+        if (login == null || login.trim().isEmpty()) throw new LoginInvalidoExeption();
+        if (senha == null || senha.trim().isEmpty()) throw new SenhaInvalidaExeption();
+        if (usuarios.containsKey(login)) throw new LoginJaExistenteException();
 
-        validarCredenciais(login, senha);
-        verificarLoginExistente(login);
-        usersList.add(new Users(login, senha, nome));
+        usuarios.put(login, new Users(login, senha, nome));
     }
-    private void validarCredenciais(String login, String senha)
-            throws LoginInvalidoExeption, SenhaInvalidaExeption {
-
-        if (login == null || login.trim().isEmpty()) {
-            throw new LoginInvalidoExeption();
-        }
-        if (senha == null || senha.trim().isEmpty()) {
-            throw new SenhaInvalidaExeption();
-        }
-    }
-
-    private void verificarLoginExistente(String login) throws LoginJaExistenteException {
-        for (Users user : usersList) {
-            if (user.getLogin().equals(login)) {
-                throw new LoginJaExistenteException();
-            }
-        }
-    }
-
-
 
     public String abrirSessao(String login, String senha) throws CredenciaisInvalidasException {
-        try {
-            Users usuario = validarLoginSenha(login, senha);
-            String idSessao = UUID.randomUUID().toString();
-            sessoesList.add(new Sessao(idSessao, login));
-            return idSessao;
-        } catch (UsuarioNaoEncontradoException | SenhaInvalidaExeption e) {
+        Users usuario = usuarios.get(login);
+
+
+        if (usuario == null || !usuario.getSenha().equals(senha)) {
             throw new CredenciaisInvalidasException();
         }
+
+        if (loginParaSessao.containsKey(login)) {
+            sessoes.remove(loginParaSessao.get(login));
+        }
+
+        String idSessao = UUID.randomUUID().toString();
+        sessoes.put(idSessao, login);
+        loginParaSessao.put(login, idSessao);
+        return idSessao;
     }
 
+    public void adicionarAmigo(String idSessao, String amigoLogin)
+            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption,
+            AmigoDeSiExeption, AmigoJaExistenteException, AmigoPendenteException {
 
-
-    private Users validarLoginSenha(String login, String senha)
-            throws UsuarioNaoEncontradoException, SenhaInvalidaExeption {
-
-        Users usuario = null;
-
-        // Primeiro verifica se o usuário existe
-        try {
-            usuario = buscarUsuario(login);
-        } catch (UsuarioNaoEncontradoException e) {
+        // 1. Verifica se o amigo existe PRIMEIRO (como solicitado)
+        if (amigoLogin == null || amigoLogin.trim().isEmpty() || !usuarios.containsKey(amigoLogin)) {
             throw new UsuarioNaoEncontradoException();
         }
 
-        // Depois verifica a senha
-        if (!usuario.getSenha().equals(senha)) {
-            throw new SenhaInvalidaExeption();
+        // 2. Verifica a sessão
+        if (idSessao == null || idSessao.trim().isEmpty()) {
+            throw new UsuarioNaoEncontradoException();
         }
 
-        return usuario;
+        String usuarioLogin = sessoes.get(idSessao);
+         if (usuarioLogin == null) {
+            throw new SessaoInvalidaExecption();
+        }
+
+        // 3. Verifica auto-amizade
+        if (usuarioLogin.equals(amigoLogin)) {
+            throw new AmigoDeSiExeption();
+        }
+
+        Users usuario = usuarios.get(usuarioLogin);
+        Users amigo = usuarios.get(amigoLogin);
+
+        // 4. Verifica se já são amigos
+        if (usuario.ehAmigo(amigoLogin) && amigo.ehAmigo(usuarioLogin)) {
+            throw new AmigoJaExistenteException();
+        }
+
+        // 5. Verifica se já existe solicitação pendente DO USUÁRIO para O AMIGO
+        if (amigo.temSolicitacaoPendente(usuarioLogin)) {
+            throw new AmigoPendenteException();
+        }
+
+        // 6. Verifica se existe solicitação pendente DO AMIGO para O USUÁRIO (aceita automaticamente)
+        if (usuario.temSolicitacaoPendente(amigoLogin)) {
+            usuario.aceitarSolicitacao(amigoLogin);
+            amigo.aceitarSolicitacao(usuarioLogin);
+            usuario.adicionarAmigo(amigoLogin);
+            amigo.adicionarAmigo(usuarioLogin);
+            return;
+        }
+
+        // 7. Se nenhum dos casos acima, envia nova solicitação
+        amigo.receberSolicitacao(usuarioLogin);
+    }
+
+    public void editarPerfil(String idSessao, String atributo, String valor)
+            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption, AtributoNaoPreenchidoException {
+        if (atributo == null || atributo.trim().isEmpty()) throw new AtributoNaoPreenchidoException();
+
+        String login = sessoes.get(idSessao);
+        if (login == null || !usuarios.containsKey(login)) {
+            throw new UsuarioNaoEncontradoException();
+        }
+
+        Users usuario = usuarios.get(login);
+        usuario.setAtributo(atributo, valor);
+    }
+
+    public boolean ehAmigo(String login, String amigo) throws UsuarioNaoEncontradoException {
+        if (!usuarios.containsKey(login) || !usuarios.containsKey(amigo)) {
+            throw new UsuarioNaoEncontradoException();
+        }
+        return usuarios.get(login).ehAmigo(amigo);
+    }
+
+    public boolean ehAmigoMutuo(String login, String amigo) throws UsuarioNaoEncontradoException {
+        Users usuario = usuarios.get(login);
+        Users outroUsuario = usuarios.get(amigo);
+        if (usuario == null || outroUsuario == null) throw new UsuarioNaoEncontradoException();
+        return usuario.ehAmigo(amigo) && outroUsuario.ehAmigo(login);
+    }
+
+    public String getAmigos(String login) throws UsuarioNaoEncontradoException {
+        Users usuario = usuarios.get(login);
+        if (usuario == null) throw new UsuarioNaoEncontradoException();
+        return "{" + String.join(",", usuario.getAmigos()) + "}";
+    }
+
+    public String getSolicitacoesPendentes(String login) throws UsuarioNaoEncontradoException {
+        Users usuario = usuarios.get(login);
+        if (usuario == null) throw new UsuarioNaoEncontradoException();
+        return "{" + String.join(",", usuario.getSolicitacoesPendentes()) + "}";
     }
 
     public void encerrarSistema() {
@@ -162,91 +160,59 @@ public class Jackut implements Serializable {
         }
     }
 
-    public static Facade iniciarSistema() {
-        File arquivo = new File(ARQUIVO_DADOS);
-        if (arquivo.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ARQUIVO_DADOS))) {
-                return (Facade) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Erro ao carregar dados: " + e.getMessage());
-            }
-        }
-        return new Facade();
-    }
+    public String getAtributoUsuario(String login, String atributo) throws UsuarioNaoEncontradoException, AtributoNaoPreenchidoException {
+        Users usuario = usuarios.get(login);
+        if (usuario == null) throw new UsuarioNaoEncontradoException();
 
-
-    public void editarPerfil(String idSessao, String atributo, String valor)
-            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption, AtributoNaoPreenchidoException {
-
-        // Primeiro verifica se o ID da sessão está vazio
-        if (idSessao == null || idSessao.trim().isEmpty()) {
-            throw new UsuarioNaoEncontradoException();
+        if ("nome".equalsIgnoreCase(atributo)) {
+            return usuario.getNome();
         }
 
-        // Depois verifica se o atributo é válido
-        if (atributo == null || atributo.trim().isEmpty()) {
+        String valor = usuario.getAtributo(atributo); // Assumindo que o método 'getAtributo' já exista na classe 'Users'
+        if (valor == null || valor.isEmpty()) {
             throw new AtributoNaoPreenchidoException();
         }
-
-        // Valida a sessão
-        validarSessao(idSessao);
-
-        // Busca o usuário
-        Users usuario = getUsuarioPorSessao(idSessao);
-
-        usuario.setAtributo(atributo, valor);
+        return valor;
     }
 
+    public void enviarRecado(String idSessao, String destinatarioLogin, String recado)
+            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption {
 
-    private Users getUsuarioPorSessao(String idSessao) throws UsuarioNaoEncontradoException {
-        for (Sessao s : sessoesList) {
-            if (s.idSessao.equals(idSessao)) {
-                return buscarUsuario(s.login);
-            }
-        }
-        throw new UsuarioNaoEncontradoException(); // Altera a mensagem aqui
-    }
-    private void validarSessao(String idSessao) throws SessaoInvalidaExecption {
-        for (Sessao s : sessoesList) {
-            if (s.idSessao.equals(idSessao)) {
-                return;
-            }
-        }
-        throw new SessaoInvalidaExecption();
-    }
-
-
-
-    private Users buscarUsuario(String login) throws UsuarioNaoEncontradoException {
-        if (login == null || login.trim().isEmpty()) {
+        // Valida destinatário
+        if (destinatarioLogin == null || !usuarios.containsKey(destinatarioLogin)) {
             throw new UsuarioNaoEncontradoException();
         }
 
-        for (Users u : usersList) {
-            if (u.getLogin().equals(login)) {
-                return u;
-            }
+        // Valida sessão
+        String remetenteLogin = sessoes.get(idSessao);
+        if (remetenteLogin == null) {
+            throw new SessaoInvalidaExecption();
         }
-        throw new UsuarioNaoEncontradoException();
+
+        // Auto-envio
+        if (remetenteLogin.equals(destinatarioLogin)) {
+            throw new IllegalArgumentException("Usuário não pode enviar recado para si mesmo.");
+        }
+
+        // Envia recado
+        Users destinatario = usuarios.get(destinatarioLogin);
+        destinatario.receberRecado(recado);
     }
 
+    public String lerRecado(String idSessao) throws SessaoInvalidaExecption, SemRecadoExeption {
+        // Valida sessão
+        String usuarioLogin = sessoes.get(idSessao);
+        if (usuarioLogin == null) {
+            throw new SessaoInvalidaExecption();
+        }
 
-    public boolean ehAmigo(String login, String amigo)
-            throws UsuarioNaoEncontradoException {
-
-        Users usuario1 = buscarUsuario(login);
-        Users usuario2 = buscarUsuario(amigo);
-
-        return usuario1.ehAmigo(amigo) && usuario2.ehAmigo(login);
+        // Lê recado
+        Users usuario = usuarios.get(usuarioLogin);
+        String recado = usuario.lerRecado();
+        if (recado == null) {
+            throw new SemRecadoExeption();
+        }
+        return recado;
     }
 
-    public String getAmigos(String login) throws UsuarioNaoEncontradoException {
-        List<String> amigos = buscarUsuario(login).getAmigos();
-        return formatarComoConjunto(amigos);
-    }
-
-    private String formatarComoConjunto(List<String> lista) {
-        // Mantém a ordem original de inserção
-        return "{" + String.join(",", lista) + "}";
-    }
 }

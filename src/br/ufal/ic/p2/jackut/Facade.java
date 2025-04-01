@@ -1,7 +1,6 @@
 package br.ufal.ic.p2.jackut;
 
 import br.ufal.ic.p2.jackut.Exeptions.*;
-
 import java.io.*;
 
 public class Facade implements Serializable {
@@ -9,7 +8,7 @@ public class Facade implements Serializable {
     private Jackut jackut;
 
     public Facade() {
-        this.jackut = new Jackut();
+        this.jackut = Jackut.iniciarSistema();
     }
 
     public void zerarSistema() {
@@ -21,12 +20,12 @@ public class Facade implements Serializable {
         return jackut.getAtributoUsuario(login, atributo);
     }
 
-
     public void adicionarAmigo(String idSessao, String amigo)
             throws UsuarioNaoEncontradoException, SessaoInvalidaExecption,
-            AmigoDeSiExeption, AmigoPendenteException, AmigoJaExistenteException {
+            AmigoDeSiExeption, AmigoJaExistenteException, AmigoPendenteException {
         jackut.adicionarAmigo(idSessao, amigo);
     }
+
     public void criarUsuario(String login, String senha, String nome)
             throws LoginInvalidoExeption, SenhaInvalidaExeption, LoginJaExistenteException {
         jackut.criarUsuario(login, senha, nome);
@@ -41,7 +40,7 @@ public class Facade implements Serializable {
     }
 
     public static Facade iniciarSistema() {
-        return Jackut.iniciarSistema();
+        return new Facade(); // Já inicializa o Jackut no construtor
     }
 
     public void editarPerfil(String idSessao, String atributo, String valor)
@@ -53,11 +52,25 @@ public class Facade implements Serializable {
         return jackut.ehAmigo(login, amigo);
     }
 
+    public boolean ehAmigoMutuo(String login, String amigo) throws UsuarioNaoEncontradoException {
+        return jackut.ehAmigoMutuo(login, amigo);
+    }
+
     public String getAmigos(String login) throws UsuarioNaoEncontradoException {
         return jackut.getAmigos(login);
     }
-//    public void adicionarAmigo(String idSessao, String amigo)
-//            throws SenhaInvalidaExeption, UsuarioNaoEncontradoException, AmigoDeSiExeption {
-//        jackut.adicionarAmigo(idSessao, amigo);
-//    }
+
+    // Método adicional para obter solicitações pendentes (se necessário)
+    public String getSolicitacoesPendentes(String login) throws UsuarioNaoEncontradoException {
+        return jackut.getSolicitacoesPendentes(login);
+    }
+
+    public void enviarRecado(String idSessao, String destinatario, String recado)
+            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption, SemRecadoExeption {
+        jackut.enviarRecado(idSessao, destinatario, recado);
+    }
+
+    public String lerRecado(String idSessao) throws SessaoInvalidaExecption, SemRecadoExeption {
+        return jackut.lerRecado(idSessao);
+    }
 }
