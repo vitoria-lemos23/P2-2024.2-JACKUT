@@ -70,4 +70,4 @@ expectError "Usuário não cadastrado." adicionarAmigo id=${idx} amigo=jpsauve
 expectError "Usuário não pode adicionar a si mesmo como amigo." adicionarAmigo id=${id1} amigo=jpsauve
 
 encerrarSistema
-#quit
+quit

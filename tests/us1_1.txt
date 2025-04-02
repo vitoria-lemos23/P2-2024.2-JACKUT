@@ -51,5 +51,5 @@ expectError "Login ou senha inválidos." abrirSessao login=jpsauve senha=
 
 encerrarSistema
 
-#quit
+quit
 

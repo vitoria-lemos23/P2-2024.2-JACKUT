@@ -12,4 +12,4 @@ expect {oabath,jdoe} getAmigos login=jpsauve
 expect {jpsauve,jdoe} getAmigos login=oabath
 
 encerrarSistema
-#quit
+quit

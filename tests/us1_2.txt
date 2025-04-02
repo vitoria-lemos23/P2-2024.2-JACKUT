@@ -11,4 +11,4 @@ expect "" getAtributoUsuario login=jpsauve3 atributo=nome
 abrirSessao login=jpsauve3 senha=3sauvejp
 
 encerrarSistema
-#quit
+quit

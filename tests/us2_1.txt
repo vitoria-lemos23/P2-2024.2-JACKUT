@@ -46,4 +46,4 @@ expect "socialmente" getAtributoUsuario login=jpsauve atributo=bebo
 expect "com companheiro(a)" getAtributoUsuario login=jpsauve atributo=moro
 
 encerrarSistema
-#quit
+quit

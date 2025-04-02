@@ -15,7 +15,7 @@ import java.util.*;
  * <p>Esta classe é responsável por todas as operações principais do sistema,
  * incluindo persistência dos dados em arquivo.</p>
  *
- * @author [Seu Nome ou Equipe]
+ * @author Vitória Lemos
  * @version 2.0
  * @since 1.0
  */
