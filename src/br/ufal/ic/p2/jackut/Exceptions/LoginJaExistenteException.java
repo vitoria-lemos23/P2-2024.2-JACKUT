@@ -17,9 +17,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * <p>A mensagem padrão "Conta com esse nome já existe." é destinada a ser exibida
  * diretamente ao usuário final em interfaces gráficas.</p>
  *
- * @author Vitória Lemos Pereira
- * @version 1.0
- * @since 1.0
+ * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#criarUsuario
  * @see br.ufal.ic.p2.jackut.Users
  */

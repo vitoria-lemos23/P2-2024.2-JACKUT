@@ -8,10 +8,7 @@
  *
  * <p>Responsável por gerenciar usuários, sessões, amizades, perfis e recados.</p>
  *
- * @author Vitória Lemos Pereira
- * @version 1.0
- * @see Jackut
- * @since 1.0
+ * @author Vitória Lemos
  */
 package br.ufal.ic.p2.jackut;
 

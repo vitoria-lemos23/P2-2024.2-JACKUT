@@ -17,9 +17,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Operações que verificam relacionamentos existentes</li>
  * </ul>
  *
- * @author Vitória Lemos Pereira
- * @version 1.0
- * @since 1.0
+ * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#adicionarAmigo
  * @see br.ufal.ic.p2.jackut.Users#ehAmigo
  */

@@ -17,9 +17,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Operações que verificam o estado de solicitações de amizade</li>
  * </ul>
  *
- * @author [Seu Nome ou Equipe]
- * @version 1.0
- * @since 1.0
+ * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#adicionarAmigo
  * @see br.ufal.ic.p2.jackut.Users#temSolicitacaoPendente
  */

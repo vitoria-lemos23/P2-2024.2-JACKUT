@@ -15,9 +15,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Operações com atributos vazios ou nulos</li>
  * </ul>
  *
- * @author [Seu Nome ou Equipe]
- * @version 1.0
- * @since 1.0
+ * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#getAtributoUsuario
  * @see br.ufal.ic.p2.jackut.Jackut#editarPerfil
  * @see br.ufal.ic.p2.jackut.Users#getAtributo

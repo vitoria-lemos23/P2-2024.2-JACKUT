@@ -21,8 +21,6 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * de identidade além do login (como email, CPF, etc.).</p>
  *
  * @author Viória Lemos
- * @version 1.0
- * @since 1.0
  * @see br.ufal.ic.p2.jackut.Jackut#criarUsuario
  * @see br.ufal.ic.p2.jackut.Users
  */

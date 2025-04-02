@@ -21,9 +21,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Login muito curto ou muito longo</li>
  * </ul>
  *
- * @author Vitória Lemos Pereira
- * @version 1.0
- * @since 1.0
+ * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#criarUsuario
  */
 public class LoginInvalidoException extends Exception {

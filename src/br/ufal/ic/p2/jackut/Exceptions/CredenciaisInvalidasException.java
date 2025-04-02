@@ -18,9 +18,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * <p>Recomenda-se capturar esta exceção para fornecer feedback adequado
  * ao usuário sobre falhas de autenticação.</p>
  *
- * @author Vitória Lemos Pereira
- * @version 1.0
- * @since 1.0
+ * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#abrirSessao
  */
 public class CredenciaisInvalidasException extends Exception {

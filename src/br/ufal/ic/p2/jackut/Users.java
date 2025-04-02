@@ -22,9 +22,7 @@ import java.util.Queue;
  *   <li>Mensagens recebidas</li>
  * </ul>
  *
- * @author [Seu Nome ou Equipe]
- * @version 2.0
- * @since 1.0
+ * @author Vitória Lemos
  */
 public class Users implements Serializable {
     private static final long serialVersionUID = 2L;
