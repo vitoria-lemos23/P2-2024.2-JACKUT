@@ -33,4 +33,7 @@ public class LoginInvalidoException extends Exception {
     public LoginInvalidoException() {
         super("Login inválido.");
     }
+
+    public static class ComunidadeJaExiste {
+    }
 }

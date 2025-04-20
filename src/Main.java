@@ -36,6 +36,11 @@ public class Main {
 
         };
 
+        String[] args10 = {"br.ufal.ic.p2.jackut.Facade",
+                "tests/us5_1.txt"
+
+        };
+
 
         EasyAccept.main(args2);
         EasyAccept.main(args3);
@@ -45,6 +50,8 @@ public class Main {
         EasyAccept.main(args7);
         EasyAccept.main(args8);
         EasyAccept.main(args9);
+        EasyAccept.main(args10);
+
     }
 }
 

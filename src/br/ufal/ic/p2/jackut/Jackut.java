@@ -25,6 +25,7 @@ public class Jackut implements Serializable {
     private Map<String, Users> usuarios;
     private Map<String, String> sessoes;
     private Map<String, String> loginParaSessao;
+    private Map<String, Comunidade> comunidades = new HashMap<>();
 
     /**
      * Constrói uma nova instância do sistema Jackut com estruturas de dados vazias.
@@ -33,6 +34,7 @@ public class Jackut implements Serializable {
         this.usuarios = new HashMap<>();
         this.sessoes = new HashMap<>();
         this.loginParaSessao = new HashMap<>();
+        this.comunidades = new HashMap<>();
     }
 
     /**
@@ -43,6 +45,7 @@ public class Jackut implements Serializable {
         usuarios.clear();
         sessoes.clear();
         loginParaSessao.clear();
+        comunidades = new HashMap<>();
     }
 
     /**
@@ -342,4 +345,46 @@ public class Jackut implements Serializable {
         return recado;
     }
 
+
+    public String getLoginPorSessao(String idSessao) throws SessaoInvalidaExecption {
+        String login = sessoes.get(idSessao);
+        if (login == null) throw new SessaoInvalidaExecption();
+        return login;
+    }
+
+
+
+    public String getDescricaoComunidade(String nome) throws ComudadeNaoExisteException {
+        if (!comunidades.containsKey(nome)) {
+            throw new ComudadeNaoExisteException();
+        }
+        return comunidades.get(nome).getDescricao();
+    }
+
+    public boolean existeComunidade(String nome) {
+        return comunidades.containsKey(nome);
+    }
+
+    public void registrarComunidade(String nome, String descricao, String dono)
+            throws ComunidadeJaExisteException {
+        if (existeComunidade(nome)) {
+            throw new ComunidadeJaExisteException();
+        }
+        comunidades.put(nome, new Comunidade(nome, descricao, dono));
+    }
+
+    public List<String> getMembrosComunidade(String nome) throws ComudadeNaoExisteException {
+        if (!comunidades.containsKey(nome)) {
+            throw new ComudadeNaoExisteException();
+        }
+        return comunidades.get(nome).getMembros(); // Retorna List<String>
+    }
+
+
+    public String getDonoComunidade(String nome) throws ComudadeNaoExisteException {
+        if (!comunidades.containsKey(nome)) {
+            throw new ComudadeNaoExisteException();
+        }
+        return comunidades.get(nome).getDono();
+    }
 }

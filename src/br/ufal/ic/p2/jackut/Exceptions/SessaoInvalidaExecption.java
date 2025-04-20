@@ -36,4 +36,10 @@ public class SessaoInvalidaExecption extends Exception {
     public SessaoInvalidaExecption() {
         super("Sessão inválida.");
     }
+
+    public static class ComudadeExiste extends Exception{
+        public ComudadeExiste() {
+            super("Comunidade com esse nome já existe.");
+        }
+    }
 }
