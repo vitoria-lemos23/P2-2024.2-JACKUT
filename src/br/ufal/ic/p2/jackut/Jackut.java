@@ -4,7 +4,12 @@
  */
 package br.ufal.ic.p2.jackut;
 
+import br.ufal.ic.p2.jackut.Componentes.GerenciadorAmizades;
+import br.ufal.ic.p2.jackut.Componentes.GerenciadorComunidades;
 import br.ufal.ic.p2.jackut.Exceptions.*;
+import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
+import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorComunidades;
+
 import java.io.*;
 import java.util.*;
 
@@ -18,15 +23,18 @@ import java.util.*;
  * @author Vitória Lemos
  */
 
-public class Jackut implements Serializable {
+public class Jackut implements Serializable{
     private static final long serialVersionUID = 2L;
     private static final String ARQUIVO_DADOS = "arquivo.dat";
 
     private Map<String, Users> usuarios;
     private Map<String, String> sessoes;
     private Map<String, String> loginParaSessao;
-    private Map<String, Comunidade> comunidades = new HashMap<>();
+    private transient Map<String, Comunidade> comunidades = new HashMap<>();
 
+    private IGerenciadorComunidades gerenciadorComunidades;
+
+    private IGerenciadorAmizades gerenciadorAmizades;
     /**
      * Constrói uma nova instância do sistema Jackut com estruturas de dados vazias.
      */
@@ -35,7 +43,12 @@ public class Jackut implements Serializable {
         this.sessoes = new HashMap<>();
         this.loginParaSessao = new HashMap<>();
         this.comunidades = new HashMap<>();
+        this.gerenciadorComunidades = new GerenciadorComunidades();
+        this.gerenciadorAmizades = new GerenciadorAmizades(usuarios, sessoes, loginParaSessao);
+
+
     }
+
 
     /**
      * Remove todos os dados do sistema, reiniciando-o para o estado inicial.
@@ -46,6 +59,33 @@ public class Jackut implements Serializable {
         sessoes.clear();
         loginParaSessao.clear();
         comunidades = new HashMap<>();
+
+        // Reinicializa os gerenciadores
+        this.gerenciadorComunidades = new GerenciadorComunidades();
+        this.gerenciadorAmizades = new GerenciadorAmizades(usuarios, sessoes, loginParaSessao);
+
+        // Remove o arquivo de persistência
+        File arquivo = new File(ARQUIVO_DADOS);
+        if (arquivo.exists()) {
+            arquivo.delete();
+        }
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+
+        // Garante que os gerenciadores sejam inicializados
+        if (this.gerenciadorComunidades == null) {
+            this.gerenciadorComunidades = new GerenciadorComunidades();
+        }
+        if (this.gerenciadorAmizades == null) {
+            this.gerenciadorAmizades = new GerenciadorAmizades(usuarios, sessoes, loginParaSessao);
+        }
+
+        // Garante que o mapa de comunidades transiente seja inicializado
+        if (this.comunidades == null) {
+            this.comunidades = new HashMap<>();
+        }
     }
 
     /**
@@ -122,55 +162,55 @@ public class Jackut implements Serializable {
      * @throws AmigoJaExistenteException Se já forem amigos
      * @throws AmigoPendenteException Se já houver solicitação pendente para este amigo
      */
-    public void adicionarAmigo(String idSessao, String amigoLogin)
-            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption,
-            AmigoDeSiException, AmigoJaExistenteException, AmigoPendenteException {
-
-        // 1. Verifica se o amigo existe PRIMEIRO (como solicitado)
-        if (amigoLogin == null || amigoLogin.trim().isEmpty() || !usuarios.containsKey(amigoLogin)) {
-            throw new UsuarioNaoEncontradoException();
-        }
-
-        // 2. Verifica a sessão
-        if (idSessao == null || idSessao.trim().isEmpty()) {
-            throw new UsuarioNaoEncontradoException();
-        }
-
-        String usuarioLogin = sessoes.get(idSessao);
-         if (usuarioLogin == null) {
-            throw new SessaoInvalidaExecption();
-        }
-
-        // 3. Verifica auto-amizade
-        if (usuarioLogin.equals(amigoLogin)) {
-            throw new AmigoDeSiException();
-        }
-
-        Users usuario = usuarios.get(usuarioLogin);
-        Users amigo = usuarios.get(amigoLogin);
-
-        // 4. Verifica se já são amigos
-        if (usuario.ehAmigo(amigoLogin) && amigo.ehAmigo(usuarioLogin)) {
-            throw new AmigoJaExistenteException();
-        }
-
-        // 5. Verifica se já existe solicitação pendente DO USUÁRIO para O AMIGO
-        if (amigo.temSolicitacaoPendente(usuarioLogin)) {
-            throw new AmigoPendenteException();
-        }
-
-        // 6. Verifica se existe solicitação pendente DO AMIGO para O USUÁRIO (aceita automaticamente)
-        if (usuario.temSolicitacaoPendente(amigoLogin)) {
-            usuario.aceitarSolicitacao(amigoLogin);
-            amigo.aceitarSolicitacao(usuarioLogin);
-            usuario.adicionarAmigo(amigoLogin);
-            amigo.adicionarAmigo(usuarioLogin);
-            return;
-        }
-
-        // 7. Se nenhum dos casos acima, envia nova solicitação
-        amigo.receberSolicitacao(usuarioLogin);
-    }
+//    public void adicionarAmigo(String idSessao, String amigoLogin)
+//            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption,
+//            AmigoDeSiException, AmigoJaExistenteException, AmigoPendenteException {
+//
+//        // 1. Verifica se o amigo existe PRIMEIRO (como solicitado)
+//        if (amigoLogin == null || amigoLogin.trim().isEmpty() || !usuarios.containsKey(amigoLogin)) {
+//            throw new UsuarioNaoEncontradoException();
+//        }
+//
+//        // 2. Verifica a sessão
+//        if (idSessao == null || idSessao.trim().isEmpty()) {
+//            throw new UsuarioNaoEncontradoException();
+//        }
+//
+//        String usuarioLogin = sessoes.get(idSessao);
+//         if (usuarioLogin == null) {
+//            throw new SessaoInvalidaExecption();
+//        }
+//
+//        // 3. Verifica auto-amizade
+//        if (usuarioLogin.equals(amigoLogin)) {
+//            throw new AmigoDeSiException();
+//        }
+//
+//        Users usuario = usuarios.get(usuarioLogin);
+//        Users amigo = usuarios.get(amigoLogin);
+//
+//        // 4. Verifica se já são amigos
+//        if (usuario.ehAmigo(amigoLogin) && amigo.ehAmigo(usuarioLogin)) {
+//            throw new AmigoJaExistenteException();
+//        }
+//
+//        // 5. Verifica se já existe solicitação pendente DO USUÁRIO para O AMIGO
+//        if (amigo.temSolicitacaoPendente(usuarioLogin)) {
+//            throw new AmigoPendenteException();
+//        }
+//
+//        // 6. Verifica se existe solicitação pendente DO AMIGO para O USUÁRIO (aceita automaticamente)
+//        if (usuario.temSolicitacaoPendente(amigoLogin)) {
+//            usuario.aceitarSolicitacao(amigoLogin);
+//            amigo.aceitarSolicitacao(usuarioLogin);
+//            usuario.adicionarAmigo(amigoLogin);
+//            amigo.adicionarAmigo(usuarioLogin);
+//            return;
+//        }
+//
+//        // 7. Se nenhum dos casos acima, envia nova solicitação
+//        amigo.receberSolicitacao(usuarioLogin);
+//    }
 
     /**
      * Edita um atributo do perfil do usuário da sessão atual.
@@ -204,12 +244,12 @@ public class Jackut implements Serializable {
      * @return true se o primeiro usuário tem o segundo como amigo, false caso contrário
      * @throws UsuarioNaoEncontradoException Se algum usuário não for encontrado
      */
-    public boolean ehAmigo(String login, String amigo) throws UsuarioNaoEncontradoException {
-        if (!usuarios.containsKey(login) || !usuarios.containsKey(amigo)) {
-            throw new UsuarioNaoEncontradoException();
-        }
-        return usuarios.get(login).ehAmigo(amigo);
-    }
+//    public boolean ehAmigo(String login, String amigo) throws UsuarioNaoEncontradoException {
+//        if (!usuarios.containsKey(login) || !usuarios.containsKey(amigo)) {
+//            throw new UsuarioNaoEncontradoException();
+//        }
+//        return usuarios.get(login).ehAmigo(amigo);
+//    }
 
     /**
      * Verifica se dois usuários são amigos mútuos (ambos adicionaram um ao outro).
@@ -219,12 +259,12 @@ public class Jackut implements Serializable {
      * @return true se forem amigos mútuos, false caso contrário
      * @throws UsuarioNaoEncontradoException Se algum usuário não for encontrado
      */
-    public boolean ehAmigoMutuo(String login, String amigo) throws UsuarioNaoEncontradoException {
-        Users usuario = usuarios.get(login);
-        Users outroUsuario = usuarios.get(amigo);
-        if (usuario == null || outroUsuario == null) throw new UsuarioNaoEncontradoException();
-        return usuario.ehAmigo(amigo) && outroUsuario.ehAmigo(login);
-    }
+//    public boolean ehAmigoMutuo(String login, String amigo) throws UsuarioNaoEncontradoException {
+//        Users usuario = usuarios.get(login);
+//        Users outroUsuario = usuarios.get(amigo);
+//        if (usuario == null || outroUsuario == null) throw new UsuarioNaoEncontradoException();
+//        return usuario.ehAmigo(amigo) && outroUsuario.ehAmigo(login);
+//    }
 
     /**
      * Obtém a lista de amigos de um usuário formatada.
@@ -233,11 +273,11 @@ public class Jackut implements Serializable {
      * @return String formatada com a lista de amigos no formato {amigo1,amigo2,...}
      * @throws UsuarioNaoEncontradoException Se o usuário não for encontrado
      */
-    public String getAmigos(String login) throws UsuarioNaoEncontradoException {
-        Users usuario = usuarios.get(login);
-        if (usuario == null) throw new UsuarioNaoEncontradoException();
-        return "{" + String.join(",", usuario.getAmigos()) + "}";
-    }
+//    public String getAmigos(String login) throws UsuarioNaoEncontradoException {
+//        Users usuario = usuarios.get(login);
+//        if (usuario == null) throw new UsuarioNaoEncontradoException();
+//        return "{" + String.join(",", usuario.getAmigos()) + "}";
+//    }
 
     /**
      * Obtém as solicitações de amizade pendentes de um usuário formatadas.
@@ -246,11 +286,11 @@ public class Jackut implements Serializable {
      * @return String formatada com as solicitações pendentes no formato {solicitante1,solicitante2,...}
      * @throws UsuarioNaoEncontradoException Se o usuário não for encontrado
      */
-    public String getSolicitacoesPendentes(String login) throws UsuarioNaoEncontradoException {
-        Users usuario = usuarios.get(login);
-        if (usuario == null) throw new UsuarioNaoEncontradoException();
-        return "{" + String.join(",", usuario.getSolicitacoesPendentes()) + "}";
-    }
+//    public String getSolicitacoesPendentes(String login) throws UsuarioNaoEncontradoException {
+//        Users usuario = usuarios.get(login);
+//        if (usuario == null) throw new UsuarioNaoEncontradoException();
+//        return "{" + String.join(",", usuario.getSolicitacoesPendentes()) + "}";
+//    }
 
     /**
      * Encerra o sistema, salvando todos os dados atuais no arquivo de persistência.
@@ -354,37 +394,99 @@ public class Jackut implements Serializable {
 
 
 
-    public String getDescricaoComunidade(String nome) throws ComudadeNaoExisteException {
-        if (!comunidades.containsKey(nome)) {
-            throw new ComudadeNaoExisteException();
-        }
-        return comunidades.get(nome).getDescricao();
+    //Metodos da comunidade
+
+//    public String getDescricaoComunidade(String nome) throws ComunidadeNaoExisteException {
+//        if (!comunidades.containsKey(nome)) {
+//            throw new ComunidadeNaoExisteException();
+//        }
+//        return comunidades.get(nome).getDescricao();
+//    }
+
+//    public boolean existeComunidade(String nome) {
+//        return comunidades.containsKey(nome);
+//    }
+//
+//    public void registrarComunidade(String nome, String descricao, String dono)
+//            throws ComunidadeJaExisteException {
+//        if (existeComunidade(nome)) {
+//            throw new ComunidadeJaExisteException();
+//        }
+//        comunidades.put(nome, new Comunidade(nome, descricao, dono));
+//    }
+//
+//    public List<String> getMembrosComunidade(String nome) throws ComunidadeNaoExisteException {
+//        if (!comunidades.containsKey(nome)) {
+//            throw new ComunidadeNaoExisteException();
+//        }
+//        return comunidades.get(nome).getMembros(); // Retorna List<String>
+//    }
+//
+//
+//    public String getDonoComunidade(String nome) throws ComunidadeNaoExisteException {
+//        if (!comunidades.containsKey(nome)) {
+//            throw new ComunidadeNaoExisteException();
+//        }
+//        return comunidades.get(nome).getDono();
+//    }
+
+
+    public void criarComunidade(String nome, String descricao, String dono) throws ComunidadeJaExisteException {
+        gerenciadorComunidades.criarComunidade(nome, descricao, dono);
+    }
+    public String getDescricaoComunidade(String nome) throws ComunidadeNaoExisteException {
+        return gerenciadorComunidades.getDescricao(nome);
     }
 
+
+
     public boolean existeComunidade(String nome) {
-        return comunidades.containsKey(nome);
+        return gerenciadorComunidades.existeComunidade(nome);
     }
 
     public void registrarComunidade(String nome, String descricao, String dono)
             throws ComunidadeJaExisteException {
-        if (existeComunidade(nome)) {
-            throw new ComunidadeJaExisteException();
-        }
-        comunidades.put(nome, new Comunidade(nome, descricao, dono));
+        gerenciadorComunidades.criarComunidade(nome, descricao, dono);
     }
 
-    public List<String> getMembrosComunidade(String nome) throws ComudadeNaoExisteException {
-        if (!comunidades.containsKey(nome)) {
-            throw new ComudadeNaoExisteException();
-        }
-        return comunidades.get(nome).getMembros(); // Retorna List<String>
+    public List<String> getMembrosComunidade(String nome) throws ComunidadeNaoExisteException {
+        return gerenciadorComunidades.getMembros(nome);
+    }
+
+    public String getDonoComunidade(String nome) throws ComunidadeNaoExisteException {
+        return gerenciadorComunidades.getDono(nome);
     }
 
 
-    public String getDonoComunidade(String nome) throws ComudadeNaoExisteException {
-        if (!comunidades.containsKey(nome)) {
-            throw new ComudadeNaoExisteException();
-        }
-        return comunidades.get(nome).getDono();
+    public void adicionarAmigo(String idSessao, String amigoLogin)
+            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption,
+            AmigoDeSiException, AmigoJaExistenteException, AmigoPendenteException {
+        gerenciadorAmizades.adicionarAmigo(idSessao, amigoLogin);
     }
+
+    public boolean ehAmigo(String login, String amigo) throws UsuarioNaoEncontradoException {
+        return gerenciadorAmizades.ehAmigo(login, amigo);
+    }
+
+    public boolean ehAmigoMutuo(String login, String amigo) throws UsuarioNaoEncontradoException {
+        return gerenciadorAmizades.ehAmigoMutuo(login, amigo);
+    }
+
+    public String getAmigos(String login) throws UsuarioNaoEncontradoException {
+        return gerenciadorAmizades.getAmigos(login);
+    }
+
+    public String getSolicitacoesPendentes(String login) throws UsuarioNaoEncontradoException {
+        return gerenciadorAmizades.getSolicitacoesPendentes(login);
+    }
+
+    public void aceitarSolicitacao(String usuario, String amigo) throws UsuarioNaoEncontradoException {
+        gerenciadorAmizades.aceitarSolicitacao(usuario, amigo);
+    }
+
+    public void recusarSolicitacao(String usuario, String amigo) throws UsuarioNaoEncontradoException {
+        gerenciadorAmizades.recusarSolicitacao(usuario, amigo);
+    }
+
+
 }

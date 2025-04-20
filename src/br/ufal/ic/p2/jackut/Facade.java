@@ -12,6 +12,7 @@
  */
 package br.ufal.ic.p2.jackut;
 
+
 import br.ufal.ic.p2.jackut.Exceptions.*;
 import java.io.*;
 import java.util.List;
@@ -202,22 +203,21 @@ public class Facade implements Serializable {
 
     public void criarComunidade(String idSessao, String nome, String descricao)
             throws SessaoInvalidaExecption, ComunidadeJaExisteException {
-        String login = jackut.getLoginPorSessao(idSessao); // Implemente getLoginPorSessao no Jackut
+        // Valida a sessão primeiro
+        String login = jackut.getLoginPorSessao(idSessao);
         jackut.registrarComunidade(nome, descricao, login);
     }
 
-
-
-    public String getDonoComunidade(String nome) throws ComudadeNaoExisteException {
+    public String getDonoComunidade(String nome) throws ComunidadeNaoExisteException {
         return jackut.getDonoComunidade(nome);
     }
 
-    public String getMembrosComunidade(String nome) throws ComudadeNaoExisteException {
+    public String getMembrosComunidade(String nome) throws ComunidadeNaoExisteException {
         List<String> membros = jackut.getMembrosComunidade(nome);
         return "{" + String.join(",", membros) + "}";
     }
 
-    public String getDescricaoComunidade(String nome) throws ComudadeNaoExisteException {
+    public String getDescricaoComunidade(String nome) throws ComunidadeNaoExisteException {
         return jackut.getDescricaoComunidade(nome);
     }
 

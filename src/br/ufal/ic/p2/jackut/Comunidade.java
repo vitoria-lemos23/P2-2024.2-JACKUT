@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.jackut;
 
+import br.ufal.ic.p2.jackut.Exceptions.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +23,29 @@ public class Comunidade implements Serializable {
     }
 
     // Getters
-    public String getNome() { return nome; }
-    public String getDescricao() { return descricao; }
-    public String getDono() { return dono; }
-    public List<String> getMembros() { return new ArrayList<>(membros); }
+    public String getNome() {
+        return nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public String getDono() {
+        return dono;
+    }
+
+    public List<String> getMembros() {
+        return new ArrayList<>(membros);
+    }
+
+
+    public void adicionarMembro(String membro) throws MembroJaExisteException {
+        if (membros.contains(membro)) {
+            throw new MembroJaExisteException();
+        }
+        membros.add(membro);
+    }
 
 
 }

@@ -41,16 +41,23 @@ public class Main {
 
         };
 
+        String[] args11 = {"br.ufal.ic.p2.jackut.Facade",
+                "tests/us5_2.txt"
 
-        EasyAccept.main(args2);
-        EasyAccept.main(args3);
-        EasyAccept.main(args4);
-        EasyAccept.main(args5);
-        EasyAccept.main(args6);
-        EasyAccept.main(args7);
-        EasyAccept.main(args8);
-        EasyAccept.main(args9);
+        };
+
+
+
+//        EasyAccept.main(args2);
+//        EasyAccept.main(args3);
+//        EasyAccept.main(args4);
+//        EasyAccept.main(args5);
+//        EasyAccept.main(args6);
+//        EasyAccept.main(args7);
+//        EasyAccept.main(args8);
+//        EasyAccept.main(args9);
         EasyAccept.main(args10);
+        EasyAccept.main(args11);
 
     }
 }

@@ -22,7 +22,7 @@ public class AdministradorComunidade extends Users {
         this.comunidadesAdministradas.add(nome);
     }
 
-    public boolean podeGerenciarComunidade(String nomeComunidade, Jackut sistema) throws ComudadeNaoExisteException {
+    public boolean podeGerenciarComunidade(String nomeComunidade, Jackut sistema) throws ComunidadeNaoExisteException {
         return sistema.getDonoComunidade(nomeComunidade).equals(this.getLogin());
     }
 }
