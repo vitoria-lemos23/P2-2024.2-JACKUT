@@ -1,0 +1,12 @@
+# User Story 8 - Criação de novos relacionamentos - Teste de persistência
+
+s1=abrirSessao login=jacquespersistente senha=abcdef
+s2=abrirSessao login=paquerapersistentedejacques senha=abcdef
+s3=abrirSessao login=inimigopersistentedejacques senha=abcdef
+
+expect {fapersistentedejacques} getFas login=jacquespersistente
+expect {jacquespersistente} getPaqueras id=${s2}
+expectError "Função inválida: Inimigo Persistente de Jacques é seu inimigo." adicionarAmigo id=${s1} amigo=inimigopersistentedejacques
+
+encerrarSistema
+quit

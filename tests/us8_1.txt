@@ -1,0 +1,172 @@
+# User Story 8 - Criação de novos relacionamentos - Permita a um usuário cadastrado do Jackut estabelecer outros tipos de relacionamentos dentro da rede, além de amizade.
+
+zerarSistema
+
+criarUsuario login=jpsauve senha=sauvejp nome="Jacques Sauve"
+s1=abrirSessao login=jpsauve senha=sauvejp
+
+##################
+# Testes da relação fã-ídolo
+# Regras: um usuário pode adicionar outro como ídolo e passa a ser chamado seu fã; essa relação é independente do fato de os usuários serem amigos;
+# a informação de que usuário é fã de quem é pública
+##################
+
+criarUsuario login=fadejacques senha=seuqcajedaf nome="Fã de Jacques"
+s2=abrirSessao login=fadejacques senha=seuqcajedaf
+
+expect false ehAmigo login=fadejacques amigo=jpsauve
+expect false ehAmigo login=jpsauve amigo=fadejacques
+expect false ehFa login=fadejacques idolo=jpsauve
+expect false ehFa login=jpsauve idolo=fadejacques
+
+adicionarIdolo id=${s2} idolo=jpsauve
+
+expect false ehAmigo login=fadejacques amigo=jpsauve
+expect false ehAmigo login=jpsauve amigo=fadejacques
+expect true ehFa login=fadejacques idolo=jpsauve
+expect false ehFa login=jpsauve idolo=fadejacques
+
+expect {} getFas login=fadejacques
+expect {fadejacques} getFas login=jpsauve
+
+# um usuário pode ter mais de um fã
+criarUsuario login=fa2dejacques senha=seuqcajedaf nome="Fã 2 de Jacques"
+s3=abrirSessao login=fa2dejacques senha=seuqcajedaf
+
+adicionarIdolo id=${s3} idolo=jpsauve
+
+expect true ehFa login=fa2dejacques idolo=jpsauve
+expect false ehFa login=jpsauve idolo=fa2dejacques
+
+expect {fadejacques,fa2dejacques} getFas login=jpsauve
+
+# um usuário pode ter mais de um ídolo
+adicionarIdolo id=${s3} idolo=fadejacques
+
+expect true ehFa login=fa2dejacques idolo=jpsauve
+expect true ehFa login=fa2dejacques idolo=fadejacques
+
+expect {} getFas login=fa2dejacques
+expect {fadejacques,fa2dejacques} getFas login=jpsauve
+expect {fa2dejacques} getFas login=fadejacques
+
+# tratamento de erros
+
+expectError "Usuário já está adicionado como ídolo." adicionarIdolo id=${s3} idolo=jpsauve
+expectError "Usuário não cadastrado." adicionarIdolo id=${s3} idolo=qwerty
+expectError "Usuário não pode ser fã de si mesmo." adicionarIdolo id=${s3} idolo=fa2dejacques
+
+##################
+# Testes da relação de paquera
+# Regras: um usuário pode adicionar outro como paquera, e esta informação é privada para quem adicionou; não precisam ser amigos; entretanto, se ambos se adicionarem como paquera mutuamente, um recado automático do
+# sistema é enviado para ambos
+##################
+
+criarUsuario login=paqueradejacques senha=abcdef nome="Paquera de Jacques"
+s2=abrirSessao login=paqueradejacques senha=abcdef
+
+expect false ehAmigo login=paqueradejacques amigo=jpsauve
+expect false ehAmigo login=jpsauve amigo=paqueradejacques
+expect false ehPaquera id=${s2} paquera=jpsauve
+expect false ehPaquera id=${s1} paquera=paqueradejacques
+
+adicionarPaquera id=${s2} paquera=jpsauve
+
+expect false ehAmigo login=paqueradejacques amigo=jpsauve
+expect false ehAmigo login=jpsauve amigo=paqueradejacques
+expect true ehPaquera id=${s2} paquera=jpsauve
+expect false ehPaquera id=${s1} paquera=paqueradejacques
+expect {jpsauve} getPaqueras id=${s2}
+expect {} getPaqueras id=${s1}
+
+# agora jpsauve adiciona paqueradejacques como paquera
+
+expectError "Não há recados." lerRecado id=${s1}
+expectError "Não há recados." lerRecado id=${s2}
+
+adicionarPaquera id=${s1} paquera=paqueradejacques
+
+expect false ehAmigo login=paqueradejacques amigo=jpsauve
+expect false ehAmigo login=jpsauve amigo=paqueradejacques
+expect true ehPaquera id=${s2} paquera=jpsauve
+expect true ehPaquera id=${s1} paquera=paqueradejacques
+expect {jpsauve} getPaqueras id=${s2}
+expect {paqueradejacques} getPaqueras id=${s1}
+
+# um recado é enviado a ambos pelo sistema
+
+expect "Paquera de Jacques é seu paquera - Recado do Jackut." lerRecado id=${s1}
+expect "Jacques Sauve é seu paquera - Recado do Jackut." lerRecado id=${s2}
+
+# um usuário pode ter mais de um paquera
+
+criarUsuario login=paquera2dejacques senha=abcdef nome="Paquera 2 de Jacques"
+s3=abrirSessao login=paquera2dejacques senha=abcdef
+
+adicionarPaquera id=${s3} paquera=jpsauve
+adicionarPaquera id=${s3} paquera=paqueradejacques
+
+expect {jpsauve,paqueradejacques} getPaqueras id=${s3}
+expect {jpsauve} getPaqueras id=${s2}
+expect {paqueradejacques} getPaqueras id=${s1}
+
+# tratamento de erros
+
+expectError "Usuário já está adicionado como paquera." adicionarPaquera id=${s3} paquera=jpsauve
+expectError "Usuário não cadastrado." adicionarPaquera id=${s3} paquera=qwerty
+expectError "Usuário não pode ser paquera de si mesmo." adicionarPaquera id=${s3} paquera=paquera2dejacques
+
+################
+# Testes da relação de inimizade
+# Regras: um usuário pode informar ao Jackut que outro usuário é seu inimigo; um inimigo não pode lhe adicionar como amigo, paquera ou fã, e todas as mensagens que chegam dele são automaticamente descartadas
+################
+
+criarUsuario login=inimigodejacques senha=abcdef nome="Inimigo de Jacques"
+s2=abrirSessao login=inimigodejacques senha=abcdef
+
+adicionarInimigo id=${s2} inimigo=jpsauve
+
+expect false ehAmigo login=jpsauve amigo=inimigodejacques
+expect false ehFa login=jpsauve idolo=inimigodejacques
+expect false ehPaquera id=${s1} paquera=inimigodejacques
+
+expectError "Função inválida: Inimigo de Jacques é seu inimigo." adicionarAmigo id=${s1} amigo=inimigodejacques
+expectError "Função inválida: Inimigo de Jacques é seu inimigo." adicionarIdolo id=${s1} idolo=inimigodejacques
+expectError "Função inválida: Inimigo de Jacques é seu inimigo." adicionarPaquera id=${s1} paquera=inimigodejacques
+expectError "Função inválida: Inimigo de Jacques é seu inimigo." enviarRecado id=${s1} destinatario=inimigodejacques recado="fhdjfsd"
+
+# usuário pode ter mais de um inimigo
+
+criarUsuario login=inimigo2dejacques senha=abcdef nome="Inimigo 2 de Jacques"
+s3=abrirSessao login=inimigo2dejacques senha=abcdef
+
+adicionarInimigo id=${s3} inimigo=jpsauve
+adicionarInimigo id=${s3} inimigo=inimigodejacques
+
+expectError "Função inválida: Inimigo 2 de Jacques é seu inimigo." adicionarAmigo id=${s1} amigo=inimigo2dejacques
+expectError "Função inválida: Inimigo 2 de Jacques é seu inimigo." adicionarAmigo id=${s2} amigo=inimigo2dejacques
+
+# tratamento de erros
+
+expectError "Usuário já está adicionado como inimigo." adicionarInimigo id=${s2} inimigo=jpsauve
+expectError "Usuário não cadastrado." adicionarInimigo id=${s2} inimigo=qwerty
+expectError "Usuário não pode ser inimigo de si mesmo." adicionarInimigo id=${s2} inimigo=inimigodejacques
+
+# teste de persistência
+
+criarUsuario login=jacquespersistente senha=abcdef nome="Jacques Persistente"
+
+criarUsuario login=fapersistentedejacques senha=seuqcajedaf nome="Fã Persistente de Jacques"
+s2=abrirSessao login=fapersistentedejacques senha=seuqcajedaf
+adicionarIdolo id=${s2} idolo=jacquespersistente
+
+criarUsuario login=paquerapersistentedejacques senha=abcdef nome="Paquera Persistente de Jacques"
+s3=abrirSessao login=paquerapersistentedejacques senha=abcdef
+adicionarPaquera id=${s3} paquera=jacquespersistente
+
+criarUsuario login=inimigopersistentedejacques senha=abcdef nome="Inimigo Persistente de Jacques"
+s4=abrirSessao login=inimigopersistentedejacques senha=abcdef
+adicionarInimigo id=${s4} inimigo=jacquespersistente
+
+encerrarSistema
+quit

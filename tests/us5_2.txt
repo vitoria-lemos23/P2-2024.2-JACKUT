@@ -1,0 +1,17 @@
+# User Story 5 - Criação de comunidades - Verificação de persistência
+
+expect "Comunidade para professores, alunos e funcionários da UFCG" getDescricaoComunidade nome="UFCG"
+expect "Comunidade para professores da UFCG" getDescricaoComunidade nome="Professores da UFCG"
+expect "Comunidade para professores, alunos e funcionários da UFCG" getDescricaoComunidade nome="UFCG2"
+expect "Comunidade para alunos da UFCG" getDescricaoComunidade nome="Alunos da UFCG"
+expect jpsauve getDonoComunidade nome="UFCG"
+expect jpsauve getDonoComunidade nome="Professores da UFCG"
+expect jpsauve getDonoComunidade nome="UFCG2"
+expect oabath getDonoComunidade nome="Alunos da UFCG"
+expect {jpsauve} getMembrosComunidade nome="UFCG"
+expect {jpsauve} getMembrosComunidade nome="Professores da UFCG"
+expect {jpsauve} getMembrosComunidade nome="UFCG2"
+expect {oabath} getMembrosComunidade nome="Alunos da UFCG"
+
+encerrarSistema
+quit

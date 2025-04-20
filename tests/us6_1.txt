@@ -1,0 +1,49 @@
+# User Story 6 - Adição de comunidades
+# Permita a um usuário cadastrado do Jackut se adicionar a uma comunidade.
+
+zerarSistema
+
+criarUsuario login=jpsauve senha=sauvejp nome="Jacques Sauve"
+s1=abrirSessao login=jpsauve senha=sauvejp
+
+criarUsuario login=oabath senha=abatho nome="Osorio Abath"
+s2=abrirSessao login=oabath senha=abatho
+
+criarComunidade sessao=${s1} nome="Professores da UFCG" descricao="Comunidade para professores da UFCG"
+criarComunidade sessao=${s2} nome="Alunos da UFCG" descricao="Comunidade para alunos da UFCG"
+
+expect {jpsauve} getMembrosComunidade nome="Professores da UFCG"
+expect {oabath} getMembrosComunidade nome="Alunos da UFCG"
+expect "{Professores da UFCG}" getComunidades login=jpsauve
+expect "{Alunos da UFCG}" getComunidades login=oabath
+
+# Osorio se adiciona a professores
+adicionarComunidade sessao=${s2} nome="Professores da UFCG"
+# Jacques se adiciona a alunos
+adicionarComunidade sessao=${s1} nome="Alunos da UFCG"
+
+expect jpsauve getDonoComunidade nome="Professores da UFCG"
+expect oabath getDonoComunidade nome="Alunos da UFCG"
+expect {jpsauve,oabath} getMembrosComunidade nome="Professores da UFCG"
+expect {oabath,jpsauve} getMembrosComunidade nome="Alunos da UFCG"
+expect "{Professores da UFCG,Alunos da UFCG}" getComunidades login=jpsauve
+expect "{Alunos da UFCG,Professores da UFCG}" getComunidades login=oabath
+
+# erros de adição de comunidades
+
+# usuário não pode se adicionar a uma comunidade da qual já participa
+expectError "Usuario já faz parte dessa comunidade." adicionarComunidade sessao=${s1} nome="Professores da UFCG"
+expectError "Usuario já faz parte dessa comunidade." adicionarComunidade sessao=${s1} nome="Alunos da UFCG"
+expectError "Usuario já faz parte dessa comunidade." adicionarComunidade sessao=${s2} nome="Alunos da UFCG"
+expectError "Usuario já faz parte dessa comunidade." adicionarComunidade sessao=${s2} nome="Professores da UFCG"
+
+# erros de comunidade inexistente
+expectError "Comunidade não existe." adicionarComunidade sessao=${s1} nome="Comunidade não criada"
+expectError "Comunidade não existe." adicionarComunidade sessao=${s2} nome="Comunidade não criada"
+
+# erros de usuário inexistente
+expectError "Usuário não cadastrado." adicionarComunidade sessao=${s3} nome="Professores da UFCG"
+expectError "Usuário não cadastrado." getComunidades sessao=${s3}
+
+encerrarSistema
+quit

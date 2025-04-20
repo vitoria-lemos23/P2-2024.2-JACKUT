@@ -1,0 +1,29 @@
+# User Story 9 - Remoção de conta - Permita a um usuário encerrar sua conta no Jackut. Todas as suas informações devem sumir do sistema: relacionamentos, mensagens enviadas, perfil.
+
+zerarSistema
+
+criarUsuario login=jpsauve senha=sauvejp nome="Jacques Sauve"
+s1=abrirSessao login=jpsauve senha=sauvejp
+
+criarUsuario login=oabath senha=abatho nome="Osorio Abath"
+s2=abrirSessao login=oabath senha=abatho
+
+enviarRecado id=${s1} destinatario=oabath recado="Ola"
+criarComunidade id=${s1} nome="UFCG" descricao="Comunidade para professores, alunos e funcionários da UFCG"
+adicionarComunidade id=${s2} nome="UFCG"
+adicionarAmigo id=${s2} amigo=jpsauve
+
+removerUsuario id=${s1}
+
+expectError "Usuário não cadastrado." getAtributoUsuario login=jpsauve atributo=nome
+expectError "Comunidade não existe." getDescricaoComunidade nome="UFCG"
+expect {} getComunidades login=oabath
+expect {} getAmigos login=oabath
+expectError "Não há recados." lerRecado id=${s2}
+
+# tratamento de erros
+
+expectError "Usuário não cadastrado." removerUsuario id=${s1}
+
+encerrarSistema
+quit

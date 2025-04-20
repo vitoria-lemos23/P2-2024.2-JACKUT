@@ -1,0 +1,109 @@
+# User Story 7 - Envio de mensagens a comunidades
+# Permita a um usuário cadastrado do Jackut enviar uma mensagem a uma comunidade. Todos os usuários da comunidade a recebem.
+
+# ESCLARECIMENTOS: Mensagens são enviadas por usuários a comunidades; Recados são enviados de um usuário do Jackut a outro. Os comandos enviarRecado e enviarMensagem são,
+# portanto, diferentes, assim como lerRecado e lerMensagem e os respectivos erros ("Não há recados." e "Não há mensagens.")
+
+zerarSistema
+
+criarUsuario login=jpsauve senha=sauvejp nome="Jacques Sauve"
+s1=abrirSessao login=jpsauve senha=sauvejp
+
+criarUsuario login=oabath senha=abatho nome="Osorio Abath"
+s2=abrirSessao login=oabath senha=abatho
+
+criarUsuario login=jdoe senha=abc nome="John Doe"
+s3=abrirSessao login=jdoe senha=abc
+
+criarComunidade sessao=${s1} nome="Comunidade de Jacques" descricao="abc"
+criarComunidade sessao=${s2} nome="Comunidade de Osorio" descricao="abc"
+criarComunidade sessao=${s3} nome="Comunidade de John" descricao="abc"
+
+# Mensagens são enviadas a comunidades, e todos os membros desta a recebem. Recados são privados, enviados de um usuário do Jackut para outro.
+
+# teste de envio de uma mensagem para uma comunidade
+
+expectError "Não há mensagens." lerMensagem id=${s1}
+expectError "Não há mensagens." lerMensagem id=${s2}
+expectError "Não há mensagens." lerMensagem id=${s3}
+
+enviarMensagem id=${s1} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques"
+enviarMensagem id=${s2} comunidade="Comunidade de Osorio" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Osorio"
+enviarMensagem id=${s3} comunidade="Comunidade de John" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de John"
+
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques" lerMensagem id=${s1}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Osorio" lerMensagem id=${s2}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de John" lerMensagem id=${s3}
+
+expectError "Não há mensagens." lerMensagem id=${s1}
+expectError "Não há mensagens." lerMensagem id=${s2}
+expectError "Não há mensagens." lerMensagem id=${s3}
+
+# teste de envio de múltiplas mensagens de usuários diferentes para a mesma comunidade
+
+enviarMensagem id=${s1} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques"
+enviarMensagem id=${s2} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Jacques"
+enviarMensagem id=${s1} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem 2 de Jacques para a comunidade de Jacques"
+enviarMensagem id=${s3} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de Jacques"
+
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques" lerMensagem id=${s1}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Jacques" lerMensagem id=${s1}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem 2 de Jacques para a comunidade de Jacques" lerMensagem id=${s1}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de Jacques" lerMensagem id=${s1}
+
+expectError "Não há mensagens." lerMensagem id=${s1}
+expectError "Não há mensagens." lerMensagem id=${s2}
+expectError "Não há mensagens." lerMensagem id=${s3}
+
+# teste de envio de mensagens para uma comunidade com mais de um membro
+
+adicionarComunidade sessao=${s2} comunidade="Comunidade de Jacques"
+adicionarComunidade sessao=${s3} comunidade="Comunidade de Jacques"
+
+enviarMensagem id=${s1} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques"
+enviarMensagem id=${s2} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Jacques"
+enviarMensagem id=${s3} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de Jacques"
+
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques" lerMensagem id=${s1}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Jacques" lerMensagem id=${s1}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de Jacques" lerMensagem id=${s1}
+expectError "Não há mensagens." lerMensagem id=${s1}
+
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques" lerMensagem id=${s2}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Jacques" lerMensagem id=${s2}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de Jacques" lerMensagem id=${s2}
+expectError "Não há mensagens." lerMensagem id=${s2}
+
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques" lerMensagem id=${s3}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Jacques" lerMensagem id=${s3}
+expect "br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de Jacques" lerMensagem id=${s3}
+expectError "Não há mensagens." lerMensagem id=${s2}
+
+# teste de diferenciação entre recados e mensagens
+
+expectError "Não há recados." lerRecado id=${s1}
+expectError "Não há recados." lerRecado id=${s2}
+expectError "Não há recados." lerRecado id=${s3}
+
+enviarRecado id=${s1} destinatario=oabath recado="Recado de Jacques para Osorio"
+enviarRecado id=${s2} destinatario=jpsauve recado="Recado de Osorio para Jacques"
+enviarRecado id=${s3} destinatario=oabath recado="Recado de John para Osorio"
+enviarRecado id=${s2} destinatario=jdoe recado="Recado de Osorio para John"
+enviarRecado id=${s1} destinatario=jdoe recado="Recado de Jacques para John"
+enviarRecado id=${s3} destinatario=jpsauve recado="Recado de John para Jacques"
+
+expectError "Não há mensagens." lerMensagem id=${s1}
+expectError "Não há mensagens." lerMensagem id=${s2}
+expectError "Não há mensagens." lerMensagem id=${s3}
+
+enviarMensagem id=${s1} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para a comunidade de Jacques"
+enviarMensagem id=${s2} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Osorio para a comunidade de Jacques"
+enviarMensagem id=${s3} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de John para a comunidade de Jacques"
+
+# erros de envio de mensagem
+
+expectError "Usuário não cadastrado." enviarMensagem id=${s4} comunidade="Comunidade de Jacques" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de um usuário fantasma"
+expectError "Comunidade não existe." enviarMensagem id=${s1}  comunidade="Comunidade fantasma" mensagem="br.ufal.ic.p2.jackut.Users.Mensagem de Jacques para uma comunidade fantasma."
+
+encerrarSistema
+quit

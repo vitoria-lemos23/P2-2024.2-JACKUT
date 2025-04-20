@@ -1,0 +1,49 @@
+# User Story 5 - Criação de comunidades
+# Permita a um usuário cadastrado do Jackut criar uma comunidade. Deve ser fornecido um nome e uma descrição. O usuário passa a ser o dono da comunidade e é o responsável por gerenciar os membros.
+
+zerarSistema
+
+criarUsuario login=jpsauve senha=sauvejp nome="Jacques Sauve"
+s1=abrirSessao login=jpsauve senha=sauvejp
+
+# comunidade "UFCG" criada pelo usuario de login jpsauve
+criarComunidade sessao=${s1} nome="UFCG" descricao="Comunidade para professores, alunos e funcionários da UFCG"
+criarComunidade sessao=${s1} nome="Professores da UFCG" descricao="Comunidade para professores da UFCG"
+
+# para facilitar a vida de vocês, a primary key das comunidades será o próprio nome; não pode haver duas comunidades com o mesmo nome
+expectError "Comunidade com esse nome já existe." criarComunidade sessao=${s1} nome="UFCG" descrição="Segunda comunidade da UFCG"
+expectError "Comunidade com esse nome já existe." criarComunidade sessao=${s1} nome="Professores da UFCG" descrição="Segunda comunidade de professores da UFCG"
+# mas pode haver duas comunidades com a mesma descrição
+criarComunidade sessao=${s1} nome="UFCG2" descricao="Comunidade para professores, alunos e funcionários da UFCG"
+
+# mesmo que o dono seja outro, não pode criar comunidade com o mesmo nome
+criarUsuario login=oabath senha=abatho nome="Osorio Abath"
+s2=abrirSessao login=oabath senha=abatho
+expectError "Comunidade com esse nome já existe." criarComunidade sessao=${s2} nome="UFCG" descricao="Segunda comunidade da UFCG"
+criarComunidade sessao=${s2} nome="Alunos da UFCG" descricao="Comunidade para alunos da UFCG"
+
+expect "Comunidade para professores, alunos e funcionários da UFCG" getDescricaoComunidade nome="UFCG"
+expect "Comunidade para professores da UFCG" getDescricaoComunidade nome="Professores da UFCG"
+expect "Comunidade para professores, alunos e funcionários da UFCG" getDescricaoComunidade nome="UFCG2"
+expect "Comunidade para alunos da UFCG" getDescricaoComunidade nome="Alunos da UFCG"
+# o dono da comunidade é sempre o usuário que a criou
+expect jpsauve getDonoComunidade nome="UFCG"
+expect jpsauve getDonoComunidade nome="Professores da UFCG"
+expect jpsauve getDonoComunidade nome="UFCG2"
+expect oabath getDonoComunidade nome="Alunos da UFCG"
+# uma comunidade tem como membro pelo menos o seu dono
+expect {jpsauve} getMembrosComunidade nome="UFCG"
+expect {jpsauve} getMembrosComunidade nome="Professores da UFCG"
+expect {jpsauve} getMembrosComunidade nome="UFCG2"
+expect {oabath} getMembrosComunidade nome="Alunos da UFCG"
+
+# erros de comunidade inexistente
+expectError "Comunidade não existe." getDescricaoComunidade nome="Comunidade ainda não criada"
+expectError "Comunidade não existe." getDescricaoComunidade nome="UFCG3"
+expectError "Comunidade não existe." getDonoComunidade nome="Comunidade ainda não criada"
+expectError "Comunidade não existe." getDonoComunidade nome="UFCG3"
+expectError "Comunidade não existe." getMembrosComunidade nome="Comunidade ainda não criada"
+expectError "Comunidade não existe." getMembrosComunidade nome="UFCG3"
+
+encerrarSistema
+quit

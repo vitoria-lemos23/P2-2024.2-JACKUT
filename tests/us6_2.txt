@@ -1,0 +1,11 @@
+# User Story 6 - Adição de comunidades - Verificação de persistência
+
+expect jpsauve getDonoComunidade nome="Professores da UFCG"
+expect oabath getDonoComunidade nome="Alunos da UFCG"
+expect {jpsauve,oabath} getMembrosComunidade nome="Professores da UFCG"
+expect {oabath,jpsauve} getMembrosComunidade nome="Alunos da UFCG"
+expect "{Professores da UFCG,Alunos da UFCG}" getComunidades login=jpsauve
+expect "{Alunos da UFCG,Professores da UFCG}" getComunidades login=oabath
+
+encerrarSistema
+quit
