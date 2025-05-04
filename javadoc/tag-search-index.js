@@ -1,1 +1,1 @@
-tagSearchIndex = [{"l":"Serialized Form","h":"","u":"serialized-form.html"},{"l":"Situações comuns que lançam esta exceção:","h":"exception class br.ufal.ic.p2.jackut.Exceptions.UsuarioNaoEncontradoException","d":"Section","u":"br/ufal/ic/p2/jackut/Exceptions/UsuarioNaoEncontradoException.html#situa-es-comuns-que-lan-am-esta-exce-o--heading"}];updateSearchResults();
+tagSearchIndex = [{"l":"Serialized Form","h":"","u":"serialized-form.html"}];updateSearchResults();

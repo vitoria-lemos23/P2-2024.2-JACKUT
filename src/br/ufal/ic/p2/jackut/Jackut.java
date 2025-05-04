@@ -6,7 +6,6 @@ import br.ufal.ic.p2.jackut.Componentes.GerenciadorComunidades;
 import br.ufal.ic.p2.jackut.Exceptions.*;
 import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
 import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorComunidades;
-import br.ufal.ic.p2.jackut.Mensagem;
 
 import java.io.*;
 import java.util.*;
@@ -278,7 +277,7 @@ public class Jackut implements Serializable{
      * @throws InimigoException Se houver relação de inimizade
      */
     public void enviarRecado(String idSessao, String destinatarioLogin, String recado)
-            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption, InimigoException {
+            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption, InimigoException, AmigoDeSiException, RecadoParaSiException {
         String remetenteLogin = getLoginPorSessao(idSessao);
         Users remetente = usuarios.get(remetenteLogin);
         Users destinatario = usuarios.get(destinatarioLogin);
@@ -287,6 +286,9 @@ public class Jackut implements Serializable{
             throw new UsuarioNaoEncontradoException();
         }
 
+        if (remetenteLogin.equals(destinatarioLogin)) {
+            throw new RecadoParaSiException();
+        }
         // Enhanced enemy check
         if (remetente.getInimigos().contains(destinatarioLogin)) {
             String nomeDestinatario = destinatario.getNome(); // Get the recipient's name
@@ -375,20 +377,31 @@ public class Jackut implements Serializable{
     public void adicionarAmigo(String idSessao, String amigoLogin)
             throws UsuarioNaoEncontradoException, SessaoInvalidaExecption,
             AmigoDeSiException, AmigoJaExistenteException, AmigoPendenteException, InimigoException {
-        String usuarioLogin = getLoginPorSessao(idSessao);
-        Users usuario = usuarios.get(usuarioLogin);
-        Users amigo = usuarios.get(amigoLogin);
 
-        if (amigo == null) {
+        // 1. Verifica se o amigo existe primeiro
+        if (amigoLogin == null || amigoLogin.trim().isEmpty() || !usuarios.containsKey(amigoLogin)) {
+            throw new UsuarioNaoEncontradoException(); // ERRO ESPERADO PELO TESTE
+        }
+
+        // 2. Valida a sessão
+        if (idSessao == null || idSessao.trim().isEmpty()) {
             throw new UsuarioNaoEncontradoException();
         }
 
-    // Verifica se o alvo (amigo) tem o usuário atual como inimigo
-        if (amigo.getInimigos().contains(usuarioLogin)) {
-            String nomeAmigo = amigo.getNome();
-            throw new InimigoException("Função inválida: " + nomeAmigo + " é seu inimigo.");
+        String usuarioLogin = sessoes.get(idSessao);
+      if (usuarioLogin == null) {
+            throw new UsuarioNaoEncontradoException();
         }
 
+        // 3. Verifica relações de inimizade
+        Users usuario = usuarios.get(usuarioLogin);
+        Users amigo = usuarios.get(amigoLogin);
+
+        if (amigo.getInimigos().contains(usuarioLogin) || usuario.getInimigos().contains(amigoLogin)) {
+            throw new InimigoException("Função inválida: " + amigo.getNome() + " é seu inimigo.");
+        }
+
+        // 4. Delega para o gerenciador de amizades
         gerenciadorAmizades.adicionarAmigo(idSessao, amigoLogin);
     }
 
@@ -419,24 +432,31 @@ public class Jackut implements Serializable{
 
 
     /**
-     * Adiciona uma paquera ao perfil do usuário, estabelecendo uma relação mútua se ambos se adicionarem.
+     * Estabelece uma relação de paquera (crush) entre o usuário autenticado e outro usuário.
      * <p>
-     * Quando ocorre uma relação mútua (A paquera B e B paquera A), ambos usuários recebem uma mensagem automática do sistema.
-     * </p>
-     *
-     * @param idSessao ID da sessão do usuário que está adicionando a paquera
-     * @param paqueraLogin Login do usuário a ser adicionado como paquera
-     * @throws SessaoInvalidaExecption Se o ID de sessão for inválido ou expirado
-     * @throws UsuarioNaoEncontradoException Se o usuário paquera não existir no sistema
-     * @throws UsuarioJaEhPaqueraException Se a paquera já estiver na lista do usuário
-     * @throws PaqueraDeSiException Se o usuário tentar adicionar a si mesmo como paquera
-     * @throws InimigoException Se houver relação de inimizade entre os usuários
-     *
-     * <p>Comportamento especial:</p>
+     * Realiza múltiplas validações antes de adicionar a paquera:</p>
      * <ul>
-     *   <li>Envia mensagem automática para ambos usuários quando há match mútuo</li>
-     *   <li>Verifica relações de inimizade antes de adicionar</li>
+     *   <li>Verifica se a sessão do usuário é válida</li>
+     *   <li>Impede auto-paquera (usuário não pode se adicionar como paquera)</li>
+     *   <li>Confirma existência do usuário alvo</li>
+     *   <li>Verifica relações de inimizade mútua</li>
+     *   <li>Envia notificação automática se houver paquera mútua</li>
      * </ul>
+     *
+     * <p><b>Comportamentos especiais:</b></p>
+     * <ul>
+     *   <li>Envia recado automático para ambos usuários em caso de paquera mútua</li>
+     *   <li>Verifica inimizade em ambas as direções (A?B e B?A)</li>
+     *   <li>Mantém a lista de paqueras privada para cada usuário</li>
+     * </ul>
+     *
+     * @param idSessao     ID da sessão válida do usuário que está adicionando a paquera
+     * @param paqueraLogin Login do usuário a ser adicionado como paquera
+     * @throws SessaoInvalidaExecption      Se o ID de sessão for inválido/expirado
+     * @throws UsuarioNaoEncontradoException Se o usuário paquera não existir no sistema
+     * @throws UsuarioJaEhPaqueraException  Se a paquera já estiver na lista do usuário
+     * @throws PaqueraDeSiException         Se o usuário tentar adicionar a si mesmo como paquera
+     * @throws InimigoException             Se existir relação de inimizade entre os usuários
      */
     public void adicionarPaquera(String idSessao, String paqueraLogin)
             throws SessaoInvalidaExecption, UsuarioNaoEncontradoException,
@@ -451,8 +471,13 @@ public class Jackut implements Serializable{
         if (paquera == null)
             throw new UsuarioNaoEncontradoException();
 
+        // Verificação de inimizade mútua
+        if (usuario.getInimigos().contains(paqueraLogin) || paquera.getInimigos().contains(usuarioLogin)) {
+            String nomePaquera = paquera.getNome();
+            throw new InimigoException("Função inválida: " + nomePaquera + " é seu inimigo.");
+        }
+
         if (paquera.getPaqueras().contains(usuarioLogin)) {
-            // Adicione o remetente como primeiro parâmetro
             usuario.receberRecado("Sistema", paquera.getNome() + " é seu paquera - Recado do Jackut.");
             paquera.receberRecado("Sistema", usuario.getNome() + " é seu paquera - Recado do Jackut.");
         }
@@ -489,33 +514,40 @@ public class Jackut implements Serializable{
      * </ul>
      */
     public void removerUsuario(String login) throws UsuarioNaoEncontradoException {
+
+
         if (!usuarios.containsKey(login)) {
             throw new UsuarioNaoEncontradoException();
+
         }
 
 
-        usuarios.remove(login);
+        else
+        {
+            // 1. Remove todas as sessões associadas ao usuário
+            String idSessao = loginParaSessao.get(login);
+            if (idSessao != null) {
+                sessoes.remove(idSessao); // Invalida a sessão
+                loginParaSessao.remove(login);
+            }
+
+            // 2. Remove o usuário do sistema
+            usuarios.remove(login);
 
 
-        String idSessao = loginParaSessao.get(login);
-        if (idSessao != null) {
-            sessoes.remove(idSessao);
-            loginParaSessao.remove(login);
+            // 3. Atualiza outros componentes (comunidades, amigos, etc.)
+            gerenciadorComunidades.removerUsuario(login);
+            for (Users user : usuarios.values()) {
+                user.removerAmigo(login);
+                user.removerSolicitacao(login);
+                user.removerFa(login);
+                user.removerIdolo(login);
+                user.removerPaquera(login);
+                user.removerInimigo(login);
+                user.removerMensagensDoUsuario(login);
+            }
         }
 
-
-        gerenciadorComunidades.removerUsuario(login);
-
-
-        for (Users user : usuarios.values()) {
-            user.removerAmigo(login);
-            user.removerSolicitacao(login);
-            user.removerFa(login);
-            user.removerIdolo(login);
-            user.removerPaquera(login);
-            user.removerInimigo(login);
-            user.removerMensagensDoUsuario(login);
-        }
     }
 
     /**
@@ -661,11 +693,19 @@ public class Jackut implements Serializable{
      */
     public String getLoginPorSessao(String idSessao)
             throws SessaoInvalidaExecption, UsuarioNaoEncontradoException {
+
+        // 1. Validação da sessão primeiro
         if (idSessao == null || idSessao.isEmpty()) {
+            throw new UsuarioNaoEncontradoException();
+        }
+
+        String login = sessoes.get(idSessao);
+        if (login == null) { // Sessão não existe
             throw new SessaoInvalidaExecption();
         }
-        String login = sessoes.get(idSessao);
-        if (login == null || !usuarios.containsKey(login)) {
+
+        // 2. Agora verifica se o usuário existe
+        if (!usuarios.containsKey(login)) {
             throw new UsuarioNaoEncontradoException();
         }
         return login;
@@ -942,11 +982,11 @@ public class Jackut implements Serializable{
      * @throws ComunidadeNaoExisteException Se não existir comunidade com o nome especificado
      * @throws MembroJaExisteException Se o usuário já for membro da comunidade
      *
-     * @see GerenciadorComunidades#adicionarMembro(String, String)
+     * @see GerenciadorComunidades#adicionarmembro(String, String)
      */
-    public void adicionarMembroComunidade(String comunidade, String membro)
-            throws ComunidadeNaoExisteException, MembroJaExisteException {
-        gerenciadorComunidades.adicionarMembro(comunidade, membro);
+    public void adicionarComunidade(String comunidade, String membro)
+            throws ComunidadeNaoExisteException, MembroJaExisteException, UsuarioNaoEncontradoException {
+        gerenciadorComunidades.adicionarmembro(comunidade, membro);
     }
 
     /**

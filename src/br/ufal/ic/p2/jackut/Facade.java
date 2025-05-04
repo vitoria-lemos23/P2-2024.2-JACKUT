@@ -16,7 +16,6 @@ package br.ufal.ic.p2.jackut;
 import br.ufal.ic.p2.jackut.Exceptions.*;
 import java.io.*;
 import java.util.List;
-import br.ufal.ic.p2.jackut.Exceptions.*;
 
 
 public class Facade implements Serializable {
@@ -265,7 +264,7 @@ public class Facade implements Serializable {
      * @throws SemRecadoException Se conteúdo da mensagem for inválido
      */
     public void enviarRecado(String idSessao, String destinatario, String recado)
-            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption, SemRecadoException, InimigoException {
+            throws UsuarioNaoEncontradoException, SessaoInvalidaExecption, SemRecadoException, InimigoException, AmigoDeSiException, RecadoParaSiException {
         jackut.enviarRecado(idSessao, destinatario, recado);
     }
 
@@ -331,7 +330,7 @@ public class Facade implements Serializable {
     public void adicionarComunidade(String idSessao, String nomeComunidade)
             throws SessaoInvalidaExecption, ComunidadeNaoExisteException, MembroJaExisteException, UsuarioNaoEncontradoException {
         String login = jackut.getLoginPorSessao(idSessao);
-        jackut.adicionarMembroComunidade(nomeComunidade, login);
+        jackut.adicionarComunidade(nomeComunidade, login);
     }
 
     public String getComunidades(String login) throws UsuarioNaoEncontradoException {
@@ -370,14 +369,26 @@ public class Facade implements Serializable {
 
     /**
      * Recupera e remove a próxima mensagem da comunidade destinada ao usuário autenticado (sistema FIFO).
-     * <p>
-     * Fluxo de operação:
+     *
+     * <p><b>Fluxo de operação:</b></p>
      * <ul>
      *   <li>Valida a sessão do usuário através do ID fornecido</li>
      *   <li>Verifica existência do usuário no sistema</li>
      *   <li>Acessa a fila de mensagens da comunidade</li>
      *   <li>Remove e retorna a mensagem mais antiga</li>
      * </ul>
+     *
+     * <p><b>Comportamento crítico:</b></p>
+     * <ul>
+     *   <li>Mensagem é permanentemente removida após leitura</li>
+     *   <li>Ordem estrita de chegada (primeira mensagem enviada é a primeira lida)</li>
+     *   <li>Mensagens são armazenadas mesmo após logout</li>
+     * </ul>
+     *
+     * <p><b>Exemplo de retorno:</b></p>
+     * <pre>{@code
+     * "Geral: Reunião marcada para sexta-feira"
+     * }</pre>
      *
      * @param idSessao ID da sessão válida do usuário
      * @return Conteúdo completo da mensagem no formato "Comunidade: texto"
@@ -387,16 +398,6 @@ public class Facade implements Serializable {
      *   <li>Usuário associado não existir</li>
      * </ul>
      * @throws SemMensagemException Se não houver mensagens disponíveis
-     *
-     * @implNote Comportamento crítico:
-     * <ul>
-     *   <li>Mensagem é permanentemente removida após leitura</li>
-     *   <li>Ordem estrita de chegada (primeira mensagem enviada é a primeira lida)</li>
-     *   <li>Mensagens são armazenadas mesmo após logout</li>
-     * </ul>
-     *
-     * @exampleFormato Exemplo de retorno:
-     * {@code "Geral: Reunião marcada para sexta-feira"}
      *
      * @see #enviarMensagem(String, String, String) Para origem das mensagens
      * @see #lerRecado(String) Para ler mensagens privadas
@@ -417,8 +418,8 @@ public class Facade implements Serializable {
 
     /**
      * Estabelece uma relação de admiração (fã-ídolo) entre o usuário autenticado e outro usuário.
-     * <p>
-     * Validações e comportamentos:
+     *
+     * <p><b>Validações e comportamentos:</b></p>
      * <ul>
      *   <li>Verifica validade da sessão do usuário admirador</li>
      *   <li>Confirma existência do usuário ídolo</li>
@@ -426,6 +427,19 @@ public class Facade implements Serializable {
      *   <li>Verifica se a relação já existe</li>
      *   <li>Bloqueia operação se existir inimizade mútua</li>
      * </ul>
+     *
+     * <p><b>Comportamentos especiais:</b></p>
+     * <ul>
+     *   <li>Cria relação mútua fã/ídolo automaticamente se ambos se adicionarem</li>
+     *   <li>Envia mensagem automática do sistema para ambos em caso de match</li>
+     *   <li>Atualiza listas de fãs e ídolos em tempo real</li>
+     *   <li>Case-sensitive para logins</li>
+     * </ul>
+     *
+     * <p><b>Exemplo de uso:</b></p>
+     * <pre>{@code
+     * adicionarIdolo("sessao123", "artista_famoso")
+     * }</pre>
      *
      * @param idSessao ID da sessão válida do usuário que está adicionando o ídolo
      * @param idolo Login do usuário sendo admirado/ídolo
@@ -439,20 +453,9 @@ public class Facade implements Serializable {
      * @throws NaoPodeSerFaDeSiException Se tentar admirar a si mesmo
      * @throws InimigoException Se houver relação de inimizade bilateral
      *
-     * @implNote Comportamentos especiais:
-     * <ul>
-     *   <li>Cria relação mútua fã/ídolo automaticamente se ambos se adicionarem</li>
-     *   <li>Envia mensagem automática do sistema para ambos em caso de match</li>
-     *   <li>Atualiza listas de fãs e ídolos em tempo real</li>
-     *   <li>Case-sensitive para logins</li>
-     * </ul>
-     *
      * @see #getFas(String) Para consultar fãs de um usuário
      * @see #ehFa(String, String) Para verificar relação de admiração
      * @see #adicionarInimigo(String, String) Operação conflitante
-     *
-     * @exampleSample Exemplo de uso válido:
-     * {@code adicionarIdolo("sessao123", "artista_famoso")}
      */
     public void adicionarIdolo(String idSessao, String idolo)
             throws SessaoInvalidaExecption, UsuarioNaoEncontradoException,
@@ -463,39 +466,21 @@ public class Facade implements Serializable {
 
 
     /**
-     * Estabelece uma relação de inimizade unilateral entre o usuário autenticado e outro usuário.
-     * <p>
-     * Comportamento e validações:
+     * Remove uma relação de inimizade previamente estabelecida.
+     *
+     * <p><b>Validações:</b></p>
      * <ul>
-     *   <li>Verifica validade da sessão do usuário solicitante</li>
-     *   <li>Confirma existência do usuário alvo da inimizade</li>
-     *   <li>Impede auto-inimizade (usuário não pode ser inimigo de si mesmo)</li>
-     *   <li>Verifica se a relação de inimizade já existe</li>
-     *   <li>Bloqueia operação se houver relações conflitantes (ex: amigos/ídolos)</li>
+     *   <li>Verifica validade da sessão do usuário</li>
+     *   <li>Confirma existência do usuário alvo</li>
+     *   <li>Remove o inimigo da lista se existir</li>
      * </ul>
      *
-     * @param idSessao ID da sessão válida do usuário que está declarando inimizade
-     * @param inimigo Login do usuário alvo da inimizade
-     * @throws SessaoInvalidaExecption Se:
-     * <ul>
-     *   <li>Sessão não existir</li>
-     *   <li>Sessão expirada</li>
-     * </ul>
+     * @param idSessao ID da sessão válida do usuário
+     * @param inimigo Login do usuário alvo
+     * @throws SessaoInvalidaExecption Se a sessão for inválida
      * @throws UsuarioNaoEncontradoException Se o usuário alvo não existir
-     * @throws UsuarioJaEhInimigoException Se a relação de inimizade já existir
-     * @throws InimigoDeSiException Se tentar declarar inimizade contra si mesmo
      *
-     * @implNote Efeitos colaterais:
-     * <ul>
-     *   <li>Atualiza lista de inimigos de ambos usuários</li>
-     *   <li>Bloqueia envio de mensagens entre os usuários</li>
-     *   <li>Remove relações de amizade/paquera existentes</li>
-     *   <li>Impede participação em mesmas comunidades</li>
-     * </ul>
-     *
-     * @see #removerInimigo(String, String) Para reverter esta operação
-     * @see #getInimigos(String) Para consultar inimigos
-     * @see InimigoException Para detalhes sobre bloqueios relacionados
+     * @see #adicionarInimigo(String, String) Para operação inversa
      */
     public void adicionarInimigo(String idSessao, String inimigo)
             throws SessaoInvalidaExecption, UsuarioNaoEncontradoException,
@@ -505,37 +490,12 @@ public class Facade implements Serializable {
 
 
     /**
-     * Verifica se um usuário é fã de outro usuário específico (relação de idolatria).
-     * <p>
-     * Comportamento da verificação:
-     * <ul>
-     *   <li>Confirma a existência de ambos os usuários no sistema</li>
-     *   <li>Verifica se o usuário alvo (fã) está na lista de fãs do ídolo</li>
-     *   <li>Não verifica a relação inversa (se o ídolo também é fã do usuário)</li>
-     * </ul>
+     * Verifica se um usuário é fã de um determinado ídolo.
      *
-     * @param usuario Login do usuário potencial fã (case-sensitive)
-     * @param idolo Login do usuário ídolo (case-sensitive)
-     * @return true se o usuário for fã do ídolo, false caso contrário
-     * @throws UsuarioNaoEncontradoException Se:
-     * <ul>
-     *   <li>O usuário fã não existir</li>
-     *   <li>O usuário ídolo não estiver cadastrado</li>
-     * </ul>
-     *
-     * @implNote Características técnicas:
-     * <ul>
-     *   <li>Verificação case-sensitive para ambos os logins</li>
-     *   <li>Consulta direta na lista de fãs do ídolo</li>
-     *   <li>Não modifica nenhum dado do sistema</li>
-     * </ul>
-     *
-     * @exampleSample Exemplo de uso:
-     * Se "maria" está na lista de fãs de "joao":
-     * {@code ehFa("maria", "joao")} retorna true
-     *
-     * @see #getFas(String) Para obter a lista completa de fãs
-     * @see #adicionarIdolo(String, String) Para criar novas relações de idolatria
+     * @param usuario Login do usuário que está sendo verificado (case-sensitive)
+     * @param idolo Login do ídolo que está sendo consultado (case-sensitive)
+     * @return {@code true} se o usuário é fã do ídolo, {@code false} caso contrário
+     * @throws UsuarioNaoEncontradoException Se qualquer um dos logins não existir no sistema
      */
     public boolean ehFa(String usuario, String idolo) throws UsuarioNaoEncontradoException {
         Users user = jackut.getUsuarios().get(usuario);
@@ -546,8 +506,8 @@ public class Facade implements Serializable {
 
     /**
      * Recupera a lista de fãs de um usuário em formato estruturado.
-     * <p>
-     * Formato de retorno:
+     *
+     * <p><b>Formato de retorno:</b></p>
      * <ul>
      *   <li>Delimitado por chaves "{}"</li>
      *   <li>Logins separados por vírgulas</li>
@@ -555,22 +515,24 @@ public class Facade implements Serializable {
      *   <li>Mantém capitalização original dos logins</li>
      * </ul>
      *
-     * @param usuario Login do usuário alvo (case-sensitive)
-     * @return String formatada com a lista de fãs
-     * @throws UsuarioNaoEncontradoException Se o usuário não estiver cadastrado no sistema
-     *
-     * @implNote Comportamento especial:
+     * <p><b>Comportamento especial:</b></p>
      * <ul>
      *   <li>Retorna "{}" se o usuário não tiver fãs</li>
      *   <li>Lista atualizada em tempo real conforme novos fãs são adicionados</li>
      *   <li>Não inclui relações de inimizade ou paqueras</li>
      * </ul>
      *
+     * <p><b>Exemplo de retorno:</b></p>
+     * <pre>{@code
+     * "{maria_2023,joao_silva,ana_123}"
+     * }</pre>
+     *
+     * @param usuario Login do usuário alvo (case-sensitive)
+     * @return String formatada com a lista de fãs
+     * @throws UsuarioNaoEncontradoException Se o usuário não estiver cadastrado no sistema
+     *
      * @see #adicionarIdolo(String, String) Para entender como os fãs são registrados
      * @see #ehFa(String, String) Para verificar se um usuário específico é fã
-     *
-     * @exampleFormato Exemplo de retorno:
-     * {@code "{maria_2023,joao_silva,ana_123}"}
      */
     public String getFas(String usuario) throws UsuarioNaoEncontradoException {
         Users user = jackut.getUsuarios().get(usuario);
@@ -580,13 +542,26 @@ public class Facade implements Serializable {
 
     /**
      * Verifica se um usuário específico está na lista de paqueras do usuário autenticado.
-     * <p>
-     * Comportamento da verificação:
+     *
+     * <p><b>Comportamento da verificação:</b></p>
      * <ul>
      *   <li>Valida a sessão do usuário que realiza a consulta</li>
      *   <li>Confirma a existência do usuário alvo (paquera)</li>
      *   <li>Verifica presença unilateral na lista de paqueras</li>
      * </ul>
+     *
+     * <p><b>Detalhes técnicos:</b></p>
+     * <ul>
+     *   <li>Verificação case-sensitive para logins</li>
+     *   <li>Não verifica reciprocidade (apenas relação unilateral)</li>
+     *   <li>Consulta direta na lista de paqueras do usuário</li>
+     * </ul>
+     *
+     * <p><b>Exemplo:</b></p>
+     * <pre>{@code
+     * // Se usuárioA tem usuárioB em sua lista de paqueras:
+     * ehPaquera("sessaoA", "usuarioB") // retorna true
+     * }</pre>
      *
      * @param idSessao ID da sessão válida do usuário consultante
      * @param paquera Login do usuário alvo da verificação
@@ -602,17 +577,6 @@ public class Facade implements Serializable {
      *   <li>Usuário alvo (paquera) não estiver cadastrado</li>
      * </ul>
      *
-     * @implNote Detalhes técnicos:
-     * <ul>
-     *   <li>Verificação case-sensitive para logins</li>
-     *   <li>Não verifica reciprocidade (apenas relação unilateral)</li>
-     *   <li>Consulta direta na lista de paqueras do usuário</li>
-     * </ul>
-     *
-     * @exampleSample Exemplo:
-     * Se usuárioA tem usuárioB em sua lista de paqueras:
-     * {@code ehPaquera("sessaoA", "usuarioB")} retorna true
-     *
      * @see #adicionarPaquera(String, String) Para criar novas relações de paquera
      * @see #getPaqueras(String) Para obter a lista completa de paqueras
      */
@@ -627,14 +591,26 @@ public class Facade implements Serializable {
 
     /**
      * Recupera a lista de paqueras do usuário autenticado em formato estruturado.
-     * <p>
-     * Formato de retorno:
+     *
+     * <p><b>Formato de retorno:</b></p>
      * <ul>
      *   <li>Delimitado por chaves "{}"</li>
      *   <li>Logins separados por vírgulas</li>
      *   <li>Ordenação alfabética A-Z</li>
      *   <li>Case-sensitive (mantém capitalização original)</li>
      * </ul>
+     *
+     * <p><b>Características:</b></p>
+     * <ul>
+     *   <li>Retorna lista vazia "{}" se não houver paqueras</li>
+     *   <li>Exibe apenas paqueras ativas (não mostra rejeitadas)</li>
+     *   <li>Atualização em tempo real conforme novas paqueras são adicionadas</li>
+     * </ul>
+     *
+     * <p><b>Exemplo de retorno:</b></p>
+     * <pre>{@code
+     * "{joao_123,maria_silva,ana_99}"
+     * }</pre>
      *
      * @param idSessao ID da sessão válida do usuário
      * @return String formatada com a lista de paqueras
@@ -645,18 +621,8 @@ public class Facade implements Serializable {
      * </ul>
      * @throws UsuarioNaoEncontradoException Se o usuário associado à sessão não existir
      *
-     * @implNote Características:
-     * <ul>
-     *   <li>Retorna lista vazia "{}" se não houver paqueras</li>
-     *   <li>Exibe apenas paqueras ativas (não mostra rejeitadas)</li>
-     *   <li>Atualização em tempo real conforme novas paqueras são adicionadas</li>
-     * </ul>
-     *
      * @see #adicionarPaquera(String, String) Para adicionar novas paqueras
      * @see #ehPaquera(String, String) Para verificar paquera específica
-     *
-     * @exampleFormato Exemplo de retorno:
-     * {@code "{joao_123,maria_silva,ana_99}"}
      */
     public String getPaqueras(String idSessao)
             throws SessaoInvalidaExecption, UsuarioNaoEncontradoException {
@@ -670,12 +636,19 @@ public class Facade implements Serializable {
     /**
      * Estabelece uma relação de paquera entre o usuário autenticado e outro usuário.
      * <p>
-     * Comportamento principal:
+     * <b>Comportamento principal:</b>
      * <ul>
      *   <li>Valida a sessão do usuário solicitante</li>
      *   <li>Verifica existência do usuário alvo</li>
      *   <li>Cria relação unilateral de paquera</li>
      *   <li>Notifica ambos usuários em caso de paquera mútua</li>
+     * </ul>
+     *
+     * <p><b>Comportamento especial:</b>
+     * <ul>
+     *   <li>Gera mensagem automática do sistema para ambos usuários em caso de match mútuo</li>
+     *   <li>Verifica relações de inimizade antes de criar a paquera</li>
+     *   <li>Armazena histórico de paqueras para sugestões futuras</li>
      * </ul>
      *
      * @param idSessao ID da sessão válida do usuário que está paquerando
@@ -686,19 +659,14 @@ public class Facade implements Serializable {
      * @throws PaqueraDeSiException Se tentar paquerar a si mesmo
      * @throws InimigoException Se existir relação de inimizade entre os usuários
      *
-     * @implNote Comportamento especial:
-     * <ul>
-     *   <li>Gera mensagem automática do sistema para ambos usuários em caso de match mútuo</li>
-     *   <li>Verifica relações de inimizade antes de criar a paquera</li>
-     *   <li>Armazena histórico de paqueras para sugestões futuras</li>
-     * </ul>
-     *
      * @see #getPaqueras(String) Para consultar paqueras existentes
      * @see #ehPaquera(String, String) Para verificar relação de paquera
      * @see InimigoException Para detalhes sobre relações de inimizade
      *
-     * @exampleFormato Exemplo de uso:
-     * {@code facade.adicionarPaquera("sessao123", "maria_silva");}
+     * <p><b>Exemplo de uso:</b></p>
+     * <pre>{@code
+     * facade.adicionarPaquera("sessao123", "maria_silva");
+     * }</pre>
      */
     public void adicionarPaquera(String idSessao, String paquera)
             throws SessaoInvalidaExecption, UsuarioNaoEncontradoException,
@@ -727,7 +695,7 @@ public class Facade implements Serializable {
      * </ul>
      * @throws UsuarioNaoEncontradoException Se o usuário associado à sessão não existir no sistema
      *
-     * @implNote Fluxo de validação:
+     * <p><b>Fluxo de validação:</b>
      * <ol>
      *   <li>Validação sintática do ID da sessão</li>
      *   <li>Consulta ao mapa de sessões ativas</li>
@@ -747,34 +715,38 @@ public class Facade implements Serializable {
         return login;
     }
 
+
     /**
-     * Remove permanentemente um usuário do sistema com base na sessão ativa.
+     * Remove permanentemente o usuário associado à sessão fornecida do sistema.
      * <p>
-     * Operações realizadas durante a remoção:
+     * <b>Comportamento detalhado:</b>
      * <ul>
-     *   <li>Exclui todos os dados do perfil do usuário</li>
-     *   <li>Encerra todas as sessões ativas do usuário</li>
-     *   <li>Remove o usuário de todas as comunidades</li>
-     *   <li>Apaga relacionamentos sociais (amizades, ídolos, paqueras)</li>
-     *   <li>Limpa mensagens e recados associados</li>
+     *   <li>Valida a sessão através do ID fornecido</li>
+     *   <li>Remove todos os dados do usuário (relacionamentos, mensagens, comunidades)</li>
+     *   <li>Invalida a sessão utilizada na operação</li>
      * </ul>
      *
-     * @param idSessao ID da sessão válida do usuário a ser removido
-     * @throws SessaoInvalidaExecption Se o ID de sessão for inválido ou expirado
-     * @throws UsuarioNaoEncontradoException Se o usuário associado à sessão não existir
+     * <p><b>Nota especial:</b> Se a sessão for inválida (expirada/não existente),
+     * assume-se que o usuário já foi removido anteriormente e lança {@code UsuarioNaoEncontradoException}</p>
      *
-     * @implNote Comportamento adicional:
+     * @param idSessao ID da sessão ativa do usuário que será removido (formato UUID)
+     * @throws SessaoInvalidaExecption Se o ID de sessão for inválido, inexistente ou expirado
+     * @throws UsuarioNaoEncontradoException Se:
      * <ul>
-     *   <li>Invalida imediatamente a sessão utilizada na operação</li>
-     *   <li>Remove referências ao usuário em todos os componentes do sistema</li>
-     *   <li>Atualiza automaticamente as estruturas de dados relacionadas</li>
+     *   <li>Não existir usuário associado à sessão</li>
+     *   <li>A sessão estiver inválida (tratado como usuário não encontrado)</li>
      * </ul>
      *
-     * @see #criarUsuario(String, String, String) Método complementar para criação de usuários
-     * @see #getAtributoUsuario(String, String) Para recuperar dados antes da remoção
+     * @see Jackut#removerUsuario(String) Para detalhes da implementação no subsistema
+     * @see #getLoginPorSessao(String) Método relacionado para obtenção de login a partir da sessão
      */
     public void removerUsuario(String idSessao) throws SessaoInvalidaExecption, UsuarioNaoEncontradoException {
-        String login = jackut.getLoginPorSessao(idSessao);
-        jackut.removerUsuario(login);
+        try {
+            String login = jackut.getLoginPorSessao(idSessao);
+            jackut.removerUsuario(login);
+        } catch (SessaoInvalidaExecption e) {
+            // Se a sessão é inválida, verificar se o usuário já foi removido
+            throw new UsuarioNaoEncontradoException();
+        }
     }
 }

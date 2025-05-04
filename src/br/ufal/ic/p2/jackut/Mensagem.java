@@ -37,7 +37,7 @@ public class Mensagem implements Serializable {
      * @param remetente Login do usuário remetente (não nulo)
      * @param conteudo Texto da mensagem (não nulo)
      *
-     * @implNote Não realiza validações nos parâmetros
+     * <p><b>Nota:</b> Este construtor não realiza validações nos parâmetros</p>
      */
     public Mensagem(String remetente, String conteudo) {
         this.remetente = remetente;

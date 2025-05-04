@@ -78,11 +78,10 @@ public class GerenciadorAmizades implements IGerenciadorAmizades, Serializable {
      * @throws AmigoDeSiException Se tentar adicionar a si mesmo como amigo
      * @throws AmigoJaExistenteException Se já existir amizade mútua
      * @throws AmigoPendenteException Se já houver solicitação pendente para este amigo
-     * @throws InimigoException Se existir relação de inimizade entre os usuários
      *
-     * @exampleSample Exemplo de aceitação automática:
+     * <p><b>Exemplo de aceitação automática:</b><br>
      * Se João tem solicitação pendente de Maria, quando Maria enviar nova solicitação,
-     * o sistema aceitará automaticamente criando amizade mútua
+     * o sistema aceitará automaticamente criando amizade mútua</p>
      */
     @Override
     public void adicionarAmigo(String idSessao, String amigoLogin)
@@ -94,17 +93,19 @@ public class GerenciadorAmizades implements IGerenciadorAmizades, Serializable {
             throw new UsuarioNaoEncontradoException();
         }
 
-        // 2. Verifica a sessão
+        // 2. Valida a sessão primeiro
         if (idSessao == null || idSessao.trim().isEmpty()) {
             throw new UsuarioNaoEncontradoException();
         }
 
+
+
         String usuarioLogin = sessoes.get(idSessao);
-        if (usuarioLogin == null) {
-            throw new SessaoInvalidaExecption();
+       if (usuarioLogin == null) {
+            throw new UsuarioNaoEncontradoException();
         }
 
-        // 3. Verifica auto-amizade
+        // 3. Demais validações (auto-amizade, solicitações, etc.)
         if (usuarioLogin.equals(amigoLogin)) {
             throw new AmigoDeSiException();
         }
@@ -112,26 +113,20 @@ public class GerenciadorAmizades implements IGerenciadorAmizades, Serializable {
         Users usuario = usuarios.get(usuarioLogin);
         Users amigo = usuarios.get(amigoLogin);
 
-        // 4. Verifica se já são amigos
         if (usuario.ehAmigo(amigoLogin) && amigo.ehAmigo(usuarioLogin)) {
             throw new AmigoJaExistenteException();
         }
 
-        // 5. Verifica se já existe solicitação pendente DO USUÁRIO para O AMIGO
         if (amigo.temSolicitacaoPendente(usuarioLogin)) {
             throw new AmigoPendenteException();
         }
 
-        // 6. Verifica se existe solicitação pendente DO AMIGO para O USUÁRIO (aceita automaticamente)
         if (usuario.temSolicitacaoPendente(amigoLogin)) {
             aceitarSolicitacao(usuarioLogin, amigoLogin);
             return;
         }
 
-        // 7. Se nenhum dos casos acima, envia nova solicitação
         amigo.receberSolicitacao(usuarioLogin);
-
-
     }
 
     /**
@@ -142,7 +137,7 @@ public class GerenciadorAmizades implements IGerenciadorAmizades, Serializable {
      * @return true se o usuário base tiver o alvo em sua lista de amigos
      * @throws UsuarioNaoEncontradoException Se algum usuário não existir
      *
-     * @implNote Não verifica reciprocidade (consulte {@link #ehAmigoMutuo})
+     * <p><b>Nota:</b> Não verifica reciprocidade (consulte {@link #ehAmigoMutuo})</p>
      */
     @Override
     public boolean ehAmigo(String login, String amigo) throws UsuarioNaoEncontradoException {
@@ -175,7 +170,6 @@ public class GerenciadorAmizades implements IGerenciadorAmizades, Serializable {
      * @return String no formato "{amigo1,amigo2,...}" ou "{}" se vazio
      * @throws UsuarioNaoEncontradoException Se o usuário não existir
      *
-     * @exampleSample Exemplo de retorno: "{maria,joao,ana}"
      */
     @Override
     public String getAmigos(String login) throws UsuarioNaoEncontradoException {

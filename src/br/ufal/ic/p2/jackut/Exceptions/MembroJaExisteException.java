@@ -21,7 +21,7 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorComunidades;
  *   <li>Garantir atomicidade nas operações de atualização de comunidades</li>
  * </ul>
  *
- * @see IGerenciadorComunidades#adicionarMembro(String, String)
+ * @see IGerenciadorComunidades#adicionarmembro(String, String)
  */
 public class MembroJaExisteException extends Exception {
 

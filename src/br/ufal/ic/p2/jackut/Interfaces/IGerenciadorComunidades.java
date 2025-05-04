@@ -71,7 +71,7 @@ public interface IGerenciadorComunidades {
      * @throws ComunidadeNaoExisteException Se a comunidade não existir
      * @throws MembroJaExisteException Se o usuário já for membro
      */
-    void adicionarMembro(String comunidade, String membro) throws ComunidadeNaoExisteException, MembroJaExisteException;
+    void adicionarmembro(String comunidade, String membro) throws ComunidadeNaoExisteException, MembroJaExisteException;
 
     /**
      * Lista todas as comunidades registradas no sistema.

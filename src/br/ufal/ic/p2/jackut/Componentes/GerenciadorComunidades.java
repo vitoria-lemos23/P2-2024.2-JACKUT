@@ -56,11 +56,12 @@ public class GerenciadorComunidades implements IGerenciadorComunidades, Serializ
 
     // In GerenciadorComunidades.java, ensure adicionarMembro adds the member
     @Override
-    public void adicionarMembro(String comunidade, String membro)
+    public void adicionarmembro(String comunidade, String membro)
             throws ComunidadeNaoExisteException, MembroJaExisteException {
         if (!comunidades.containsKey(comunidade)) {
             throw new ComunidadeNaoExisteException();
         }
+
         comunidades.get(comunidade).adicionarMembro(membro);
     }
 

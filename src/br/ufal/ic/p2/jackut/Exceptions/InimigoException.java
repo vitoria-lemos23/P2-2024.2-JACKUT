@@ -23,7 +23,7 @@ public class InimigoException extends Exception {
      *
      * @param message Detalhes sobre a restrição de inimizade que causou o erro
      *
-     * @exampleSample Exemplo de mensagem:
+     *
      * "Operação bloqueada: João é seu inimigo e não pode receber mensagens"
      */
     public InimigoException(String message) {

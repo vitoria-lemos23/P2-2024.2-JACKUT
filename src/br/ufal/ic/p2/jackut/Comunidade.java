@@ -37,7 +37,7 @@ public class Comunidade implements Serializable {
      * @param descricao Descrição detalhada (não nula)
      * @param dono Login do usuário fundador (adicionado automaticamente como membro)
      *
-     * @implNote Comportamento inicial:
+     * <p><b>Comportamento inicial:</b></p>
      * <ul>
      *   <li>Cria lista de membros com o dono como primeiro integrante</li>
      *   <li>Inicializa lista vazia de mensagens</li>
@@ -58,7 +58,10 @@ public class Comunidade implements Serializable {
      * @param membro Login do usuário a ser adicionado (case-sensitive)
      * @throws MembroJaExisteException Se o usuário já for membro
      *
-     * @implNote Não realiza validação de existência do usuário no sistema
+     * <p><b>Observação de implementação:</b></p>
+     * <ul>
+     *   <li>Não realiza validação de existência do usuário no sistema</li>
+     * </ul>
      */
     public void adicionarMembro(String membro) throws MembroJaExisteException {
         if (membros.contains(membro)) {
@@ -72,7 +75,7 @@ public class Comunidade implements Serializable {
      *
      * @param mensagem Texto completo da mensagem (não nulo)
      *
-     * @implNote Mensagens são mantidas em ordem cronológica
+     * <p><b>Comportamento:</b> Mensagens são mantidas em ordem cronológica</p>
      */
     public void adicionarMensagem(String mensagem) {
         mensagens.add(mensagem);
@@ -84,7 +87,12 @@ public class Comunidade implements Serializable {
      * @return Mensagem no formato original de envio
      * @throws SemMensagemException Se não houver mensagens disponíveis
      *
-     * @implNote Sistema FIFO (First-In-First-Out)
+     * <p><b>Comportamento:</b></p>
+     * <ul>
+     *   <li>Sistema FIFO (First-In-First-Out)</li>
+     *   <li>Mensagem é permanentemente removida após leitura</li>
+     *   <li>Ordem estrita de chegada</li>
+     * </ul>
      */
     public String lerMensagem() throws SemMensagemException {
         if (mensagens.isEmpty()) {
@@ -104,32 +112,23 @@ public class Comunidade implements Serializable {
     }
 
     /**
-     * Remove usuário da lista de membros sem validações adicionais.
-     *
-     * @param membro Login do usuário a ser removido
-     *
-     * @implNote Não verifica permissões ou existência prévia
-     */
-
-
-    /**
      * Remove um membro da comunidade sem realizar validações adicionais.
-     * <p>
-     * Comportamento da operação:
+     *
+     * <p><b>Comportamento da operação:</b></p>
      * <ul>
      *   <li>Remove o login especificado da lista de membros</li>
      *   <li>Não verifica se o membro existe previamente na lista</li>
      *   <li>Não realiza nenhuma ação se o membro não for encontrado</li>
      * </ul>
      *
-     * @param membro Login do usuário a ser removido (case-sensitive)
-     *
-     * @implNote Considerações importantes:
+     * <p><b>Considerações importantes:</b></p>
      * <ul>
      *   <li>Não verifica permissões do solicitante</li>
      *   <li>Não valida a existência do usuário no sistema</li>
      *   <li>Não atualiza relações sociais ou mensagens do membro removido</li>
      * </ul>
+     *
+     * @param membro Login do usuário a ser removido (case-sensitive)
      *
      * @see #adicionarMembro(String) Para operação inversa
      */
