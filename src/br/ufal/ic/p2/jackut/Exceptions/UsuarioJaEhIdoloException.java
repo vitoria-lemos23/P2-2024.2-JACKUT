@@ -19,7 +19,6 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Notificar o usuário sobre a relação já existente</li>
  * </ul>
  *
- * @see br.ufal.ic.p2.jackut.Componentes.GerenciadorAmizades#adicionarIdolo(String, String)
  */
 public class UsuarioJaEhIdoloException extends Exception {
 

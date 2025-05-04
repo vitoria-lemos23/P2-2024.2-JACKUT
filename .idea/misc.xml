@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavadocGenerationManager">
-    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/../javadoc" />
+    <option name="OUTPUT_DIRECTORY" value="/**  * Retorna o gerenciador central de operações relacionadas a amizades e relacionamentos sociais.  *   * &lt;p&gt;&lt;b&gt;Considerações importantes:&lt;/b&gt;&lt;/p&gt;  * &lt;ul&gt;  *   &lt;li&gt;O gerenciador retornado é o componente central das interações sociais do sistema&lt;/li&gt;  *   &lt;li&gt;Modificações diretas neste componente AFETAM todo o estado de relacionamentos&lt;/li&gt;  *   &lt;li&gt;Para operações rotineiras, utilize os métodos dedicados da classe Jackut&lt;/li&gt;  *   &lt;li&gt;Para customizações avançadas, implemente {@link IGerenciadorAmizades}&lt;/li&gt;  * &lt;/ul&gt;  *  * @return Implementação concreta de {@link IGerenciadorAmizades} responsável por:  *         &lt;ul&gt;  *           &lt;li&gt;Gestão de solicitações de amizade&lt;/li&gt;  *           &lt;li&gt;Manutenção das listas de amigos&lt;/li&gt;  *           &lt;li&gt;Verificação de status de relacionamentos&lt;/li&gt;  *           &lt;li&gt;Resolução de conflitos em relações sociais&lt;/li&gt;  *         &lt;/ul&gt;  *  * @see GerenciadorAmizades Para detalhes da implementação padrão  * @see #adicionarAmigo(String, String) Exemplo de operação gerenciada  * @see #getAmigos(String) Método relacionado para consulta de amigos  * @see #ehAmigoMutuo(String, String) Método de verificação de relacionamento  */" />
     <option name="OPTION_DOCUMENT_TAG_AUTHOR" value="true" />
     <option name="OPTION_DOCUMENT_TAG_VERSION" value="true" />
     <option name="OPTION_DOCUMENT_TAG_DEPRECATED" value="false" />
     <option name="OTHER_OPTIONS" value="-encoding ISO-8859-1 -charset ISO-8859-1" />
+    <option name="LOCALE" value="pt_BR" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="openjdk-20" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />

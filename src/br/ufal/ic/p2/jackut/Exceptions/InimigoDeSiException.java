@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.jackut.Exceptions;
 
+import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
+
 /**
  * Exceção lançada quando um usuário tenta se adicionar como próprio inimigo.
  * <p>
@@ -20,7 +22,6 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Exibir mensagem clara de erro ao usuário final</li>
  * </ul>
  *
- * @see IGerenciadorAmizades#adicionarInimigo(String, String)
  */
 public class InimigoDeSiException extends Exception {
 

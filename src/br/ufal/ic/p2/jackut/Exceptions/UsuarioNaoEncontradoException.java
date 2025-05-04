@@ -11,7 +11,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * <p>Esta exceção é fundamental para garantir a integridade das operações que dependem
  * da existência de usuários registrados no sistema.</p>
  *
- * <h3>Situações comuns que lançam esta exceção:</h3>
+ *<p><b>Situações comuns que lançam esta exceção:</b>
  * <ul>
  *   <li>Tentativa de visualizar perfil de usuário não cadastrado</li>
  *   <li>Envio de mensagem para destinatário inexistente</li>

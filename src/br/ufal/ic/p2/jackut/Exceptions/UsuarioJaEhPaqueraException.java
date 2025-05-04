@@ -19,7 +19,6 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Notificar o usuário sobre a relação já existente</li>
  * </ul>
  *
- * @see br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades#adicionarPaquera(String, String)
  * @see UsuarioJaEhIdoloException Exceção similar para ídolos duplicados
  * @see UsuarioJaEhInimigoException Exceção similar para inimigos duplicados
  */

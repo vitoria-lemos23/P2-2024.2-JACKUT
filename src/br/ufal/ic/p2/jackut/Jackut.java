@@ -308,10 +308,18 @@ public class Jackut implements Serializable{
 
     /**
      * Cria uma nova comunidade.
-     * @param nome Nome da comunidade
-     * @param descricao Descrição da comunidade
-     * @param dono Login do criador
-     * @throws ComunidadeJaExisteException Se o nome já estiver em uso
+     *
+     * <p>Exemplo de uso:</p>
+     * <pre>{@code
+     *     criarComunidade("DevsJava", "Comunidade de desenvolvedores", "user123");
+     * }</pre>
+     *
+     * <p><b>Nota de implementação:</b> Esta operação é atômica e thread-safe.</p>
+     *
+     * @param nome Nome único da comunidade (case-sensitive)
+     * @param descricao Descrição detalhada da comunidade
+     * @param dono Login do usuário criador
+     * @throws ComunidadeJaExisteException Se já existir comunidade com o mesmo nome
      */
     public void criarComunidade(String nome, String descricao, String dono) throws ComunidadeJaExisteException {
         gerenciadorComunidades.criarComunidade(nome, descricao, dono);
@@ -386,12 +394,21 @@ public class Jackut implements Serializable{
 
     // ========== GETTERS ==========
 
-    /** @return Mapa de sessões ativas */
+    /**
+     * Obtém o mapa de sessões ativas do sistema.
+     *
+     * @return Mapa não modificável contendo as sessões ativas no formato (ID da sessão -> login do usuário)
+     */
     public Map<String, String> getSessoes() {
         return sessoes;
     }
 
-    /** @return Mapa de usuários registrados */
+    /**
+     * Obtém o mapa completo de usuários registrados no sistema.
+     *
+     * @return Mapa não modificável contendo todos os usuários no formato (login -> objeto Users)
+     * @see Users
+     */
     public Map<String, Users> getUsuarios() {
         return usuarios;
     }
@@ -913,17 +930,17 @@ public class Jackut implements Serializable{
     /**
      * Adiciona um novo membro a uma comunidade existente no sistema.
      *
-     * @param comunidade Nome da comunidade onde o membro será adicionado (case-sensitive)
-     * @param membro Login do usuário que será adicionado como membro
-     * @throws ComunidadeNaoExisteException Se não existir comunidade com o nome especificado
-     * @throws MembroJaExisteException Se o usuário já for membro da comunidade
-     *
-     * @implNote Comportamento após adição bem-sucedida:
+     * <p><b>Comportamento após adição bem-sucedida:</b></p>
      * <ul>
      *   <li>O membro ganha acesso total às funcionalidades da comunidade</li>
      *   <li>A comunidade aparece na lista de comunidades do usuário</li>
      *   <li>Nenhuma notificação automática é enviada aos membros existentes</li>
      * </ul>
+     *
+     * @param comunidade Nome da comunidade onde o membro será adicionado (case-sensitive)
+     * @param membro Login do usuário que será adicionado como membro
+     * @throws ComunidadeNaoExisteException Se não existir comunidade com o nome especificado
+     * @throws MembroJaExisteException Se o usuário já for membro da comunidade
      *
      * @see GerenciadorComunidades#adicionarMembro(String, String)
      */
@@ -935,16 +952,15 @@ public class Jackut implements Serializable{
     /**
      * Recupera a lista de comunidades das quais um usuário é membro.
      *
-     * @param usuario Login do usuário (case-sensitive) para consulta
-     * @return Lista não modificável de nomes de comunidades em ordem alfabética
-     *
-     * @implNote Características do retorno:
+     * <p><b>Características do retorno:</b></p>
      * <ul>
      *   <li>Retorna lista vazia se o usuário não pertencer a comunidades</li>
      *   <li>Nomes de comunidades mantêm capitalização original</li>
      *   <li>A lista é uma cópia defensiva para evitar modificações externas</li>
      * </ul>
      *
+     * @param usuario Login do usuário (case-sensitive) para consulta
+     * @return Lista não modificável de nomes de comunidades em ordem alfabética
      * @see GerenciadorComunidades#getComunidadesDoUsuario(String)
      */
     public List<String> getComunidadesDoUsuario(String usuario) {
@@ -955,19 +971,19 @@ public class Jackut implements Serializable{
     /**
      * Retorna o mapeamento interno de logins de usuário para IDs de sessão ativas.
      *
+     * <p><b>Características importantes:</b></p>
+     * <ul>
+     *   <li>O mapa retornado é uma cópia defensiva para garantir encapsulamento</li>
+     *   <li>Modificações no mapa retornado NÃO afetam o estado interno do sistema</li>
+     *   <li>IDs de sessão são dados sensíveis - tratar com cuidado de segurança</li>
+     * </ul>
+     *
      * @return Mapa não modificável onde:
      *         <ul>
      *           <li><b>Chave:</b> Login do usuário (case-sensitive)</li>
      *           <li><b>Valor:</b> ID único da sessão associada (formato UUID)</li>
      *         </ul>
      *         Retorna mapa vazio se não houver sessões ativas
-     *
-     * @implNote Características importantes:
-     * <ul>
-     *   <li>O mapa retornado é uma cópia defensiva para garantir encapsulamento</li>
-     *   <li>Modificações no mapa retornado NÃO afetam o estado interno do sistema</li>
-     *   <li>IDs de sessão são dados sensíveis - tratar com cuidado de segurança</li>
-     * </ul>
      *
      * @see #abrirSessao(String, String) Para entender como as sessões são criadas
      * @see #getSessoes() Para obter o mapeamento inverso (ID sessão ? login)
@@ -980,20 +996,20 @@ public class Jackut implements Serializable{
     /**
      * Retorna o mapa completo de comunidades registradas no sistema.
      *
-     * @return Mapa onde:
-     *         <ul>
-     *           <li><b>Chave:</b> Nome da comunidade (case-sensitive)</li>
-     *           <li><b>Valor:</b> Objeto {@link Comunidade} correspondente</li>
-     *         </ul>
-     *         Retorna mapa vazio se não houver comunidades registradas
-     *
-     * @implNote Características importantes:
+     * <p><b>Características importantes:</b></p>
      * <ul>
      *   <li>O mapa é transiente e não persiste entre serializações</li>
      *   <li>Modificações no mapa retornado AFETAM diretamente o estado interno do sistema</li>
      *   <li>Para operações seguras, prefira usar os métodos dedicados de gestão de comunidades</li>
      *   <li>Reinicializado automaticamente durante desserialização se necessário</li>
      * </ul>
+     *
+     * @return Mapa onde:
+     *         <ul>
+     *           <li><b>Chave:</b> Nome da comunidade (case-sensitive)</li>
+     *           <li><b>Valor:</b> Objeto {@link Comunidade} correspondente</li>
+     *         </ul>
+     *         Retorna mapa vazio se não houver comunidades registradas
      *
      * @see #criarComunidade(String, String, String) Para criar novas comunidades
      * @see GerenciadorComunidades Para operações controladas de gestão de comunidades
@@ -1006,20 +1022,20 @@ public class Jackut implements Serializable{
     /**
      * Retorna a instância do gerenciador de comunidades do sistema.
      *
-     * @return Implementação concreta de {@link IGerenciadorComunidades} responsável por:
-     *         <ul>
-     *           <li>Criação/remoção de comunidades</li>
-     *           <li>Gestão de membros</li>
-     *           <li>Consulta de dados de comunidades</li>
-     *         </ul>
-     *
-     * @implNote Características importantes:
+     * <p><b>Características importantes:</b></p>
      * <ul>
      *   <li>A instância retornada é o controlador central das operações de comunidades</li>
      *   <li>Modificações no gerenciador AFETAM diretamente o estado global do sistema</li>
      *   <li>Prefira usar métodos públicos da classe Jackut para operações comuns</li>
      *   <li>Para extensões avançadas, utilize a interface {@link IGerenciadorComunidades}</li>
      * </ul>
+     *
+     * @return Implementação concreta de {@link IGerenciadorComunidades} responsável por:
+     *         <ul>
+     *           <li>Criação/remoção de comunidades</li>
+     *           <li>Gestão de membros</li>
+     *           <li>Consulta de dados de comunidades</li>
+     *         </ul>
      *
      * @see GerenciadorComunidades Para detalhes da implementação padrão
      * @see #criarComunidade(String, String, String) Exemplo de método que utiliza este gerenciador
@@ -1033,6 +1049,14 @@ public class Jackut implements Serializable{
     /**
      * Retorna o gerenciador central de operações relacionadas a amizades e relacionamentos sociais.
      *
+     * <p><b>Considerações importantes:</b></p>
+     * <ul>
+     *   <li>O gerenciador retornado é o componente central das interações sociais do sistema</li>
+     *   <li>Modificações diretas neste componente AFETAM todo o estado de relacionamentos</li>
+     *   <li>Para operações rotineiras, utilize os métodos dedicados da classe Jackut</li>
+     *   <li>Para customizações avançadas, implemente {@link IGerenciadorAmizades}</li>
+     * </ul>
+     *
      * @return Implementação concreta de {@link IGerenciadorAmizades} responsável por:
      *         <ul>
      *           <li>Gestão de solicitações de amizade</li>
@@ -1040,14 +1064,6 @@ public class Jackut implements Serializable{
      *           <li>Verificação de status de relacionamentos</li>
      *           <li>Resolução de conflitos em relações sociais</li>
      *         </ul>
-     *
-     * @implNote Considerações importantes:
-     * <ul>
-     *   <li>O gerenciador retornado é o componente central das interações sociais do sistema</li>
-     *   <li>Modificações diretas neste componente AFETAM todo o estado de relacionamentos</li>
-     *   <li>Para operações rotineiras, utilize os métodos dedicados da classe Jackut</li>
-     *   <li>Para customizações avançadas, implemente {@link IGerenciadorAmizades}</li>
-     * </ul>
      *
      * @see GerenciadorAmizades Para detalhes da implementação padrão
      * @see #adicionarAmigo(String, String) Exemplo de operação gerenciada

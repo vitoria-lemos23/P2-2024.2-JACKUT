@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.jackut.Exceptions;
 
+import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorComunidades;
+
 /**
  * Exceção lançada quando uma operação tenta adicionar um usuário já existente em uma comunidade.
  * <p>

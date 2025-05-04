@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.jackut.Exceptions;
 
+import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
+
 /**
  * Exceção lançada quando uma operação é bloqueada devido a uma relação de inimizade entre usuários.
  * <p>
@@ -10,9 +12,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Acesso a funcionalidades restritas entre usuários hostis</li>
  * </ul>
  *
- * @param message Descrição detalhada do contexto específico do erro
  *
- * @see IGerenciadorAmizades#adicionarInimigo(String, String)
+ *
  * @see IGerenciadorAmizades#adicionarAmigo(String, String)
  */
 public class InimigoException extends Exception {

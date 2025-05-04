@@ -69,13 +69,22 @@ public class Users implements Serializable {
 
     // ========== MÉTODOS DE ACESSO ==========
 
-    /** @return Login do usuário */
+    /**
+     * Obtém o login do usuário no sistema.
+     * @return Login do usuário (case-sensitive)
+     */
     public String getLogin() { return login; }
 
-    /** @return Senha do usuário */
+    /**
+     * Recupera a senha do usuário cadastrada no sistema.
+     * @return Senha do usuário (armazenada em formato seguro)
+     */
     public String getSenha() { return senha; }
 
-    /** @return Nome do usuário */
+    /**
+     * Obtém o nome completo do usuário.
+     * @return Nome do usuário (formato original de cadastro)
+     */
     public String getNome() { return nome; }
 
     // ========== GERENCIAMENTO DE AMIZADES ==========
@@ -112,10 +121,16 @@ public class Users implements Serializable {
      */
     public boolean ehAmigo(String usuario) { return amigos.contains(usuario); }
 
-    /** @return Lista de amigos do usuário */
+    /**
+     * Lista de amigos do usuário.
+     * @return Cópia imutável da lista de amigos
+     */
     public List<String> getAmigos() { return new ArrayList<>(amigos); }
 
-    /** @return Lista de solicitações de amizade pendentes */
+    /**
+     * Lista de solicitações de amizade pendentes.
+     * @return Cópia imutável da lista de solicitações
+     */
     public List<String> getSolicitacoesPendentes() { return new ArrayList<>(solicitacoesRecebidas); }
 
     /**
@@ -199,7 +214,10 @@ public class Users implements Serializable {
         mensagensComunidade.add(mensagem);
     }
 
-    /** @return true se houver mensagens de comunidade pendentes */
+    /**
+     * Verifica se há mensagens de comunidade pendentes.
+     * @return true se houver mensagens, false caso contrário
+     */
     public boolean temMensagensComunidade() { return !mensagensComunidade.isEmpty(); }
 
     /**
@@ -264,35 +282,65 @@ public class Users implements Serializable {
 
     // ========== MÉTODOS DE REMOÇÃO ==========
 
-    /** @param amigo Login do amigo a ser removido */
+    /**
+     * Remove um amigo da lista de amigos.
+     * @param amigo Login do amigo a ser removido
+     */
     public void removerAmigo(String amigo) { amigos.remove(amigo); }
 
-    /** @param solicitante Login do solicitante a ser removido */
+    /**
+     * Remove uma solicitação pendente.
+     * @param solicitante Login do solicitante a ser removido
+     */
     public void removerSolicitacao(String solicitante) { solicitacoesRecebidas.remove(solicitante); }
 
-    /** @param fa Login do fã a ser removido */
+    /**
+     * Remove um fã da lista de fãs.
+     * @param fa Login do fã a ser removido
+     */
     public void removerFa(String fa) { fas.remove(fa); }
 
-    /** @param idolo Login do ídolo a ser removido */
+    /**
+     * Remove um ídolo da lista de ídolos.
+     * @param idolo Login do ídolo a ser removido
+     */
     public void removerIdolo(String idolo) { idolos.remove(idolo); }
 
-    /** @param paquera Login da paquera a ser removida */
+    /**
+     * Remove uma paquera da lista de paqueras.
+     * @param paquera Login da paquera a ser removida
+     */
     public void removerPaquera(String paquera) { paqueras.remove(paquera); }
 
-    /** @param inimigo Login do inimigo a ser removido */
+    /**
+     * Remove um inimigo da lista de inimigos.
+     * @param inimigo Login do inimigo a ser removido
+     */
     public void removerInimigo(String inimigo) { inimigos.remove(inimigo); }
 
     // ========== GETTERS DE RELACIONAMENTOS ==========
 
-    /** @return Lista de fãs do usuário */
+    /**
+     * Lista de fãs do usuário.
+     * @return Cópia imutável da lista de fãs
+     */
     public List<String> getFas() { return new ArrayList<>(fas); }
 
-    /** @return Lista de ídolos do usuário */
+    /**
+     * Lista de ídolos do usuário.
+     * @return Cópia imutável da lista de ídolos
+     */
     public List<String> getIdolos() { return new ArrayList<>(idolos); }
 
-    /** @return Lista de paqueras do usuário */
+    /**
+     * Lista de paqueras do usuário.
+     * @return Cópia imutável da lista de paqueras
+     */
     public List<String> getPaqueras() { return new ArrayList<>(paqueras); }
 
-    /** @return Lista de inimigos do usuário */
+    /**
+     * Lista de inimigos do usuário.
+     * @return Cópia imutável da lista de inimigos
+     */
     public List<String> getInimigos() { return new ArrayList<>(inimigos); }
 }

@@ -19,7 +19,6 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Notificar o usuário sobre a relação hostil já existente</li>
  * </ul>
  *
- * @see br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades#adicionarInimigo(String, String)
  */
 public class UsuarioJaEhInimigoException extends Exception {
 

@@ -19,7 +19,6 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Informar ao usuário sobre a ausência de conteúdo</li>
  * </ul>
  *
- * @see br.ufal.ic.p2.jackut.Componentes.GerenciadorComunidades#lerMensagem()
  */
 public class SemMensagemException extends Exception {
 

@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.jackut.Exceptions;
 
+import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
+
 /**
  * Exceção lançada quando um usuário tenta se adicionar como próprio inimigo.
  * <p>
@@ -19,7 +21,6 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Exibir mensagem clara em formulários de relacionamento</li>
  * </ul>
  *
- * @see IGerenciadorAmizades#adicionarInimigo(String, String)
  * @see NaoPodeSerFaDeSiException Exceção similar para auto-idolatria
  * @see NaoPodePaquerarASiMesmoException Exceção similar para auto-paquera
  */

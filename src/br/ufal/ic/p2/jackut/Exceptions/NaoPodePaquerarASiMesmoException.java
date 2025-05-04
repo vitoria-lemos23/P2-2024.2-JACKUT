@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.jackut.Exceptions;
 
+import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
+
 /**
  * Exceção lançada quando um usuário tenta estabelecer relação de paquera consigo mesmo.
  * <p>
@@ -19,7 +21,7 @@ package br.ufal.ic.p2.jackut.Exceptions;
  *   <li>Exibir mensagem preventiva em formulários de relacionamento</li>
  * </ul>
  *
- * @see IGerenciadorAmizades#adicionarPaquera(String, String)
+ *
  */
 public class NaoPodePaquerarASiMesmoException extends Exception {
 
