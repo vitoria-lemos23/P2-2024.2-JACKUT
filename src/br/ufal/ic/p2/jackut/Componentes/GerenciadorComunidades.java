@@ -21,8 +21,7 @@ public class GerenciadorComunidades implements IGerenciadorComunidades, Serializ
         if (comunidades.containsKey(nome)) {
             throw new ComunidadeJaExisteException();
         }
-        comunidades.put(nome, new Comunidade(nome, descricao, dono));
-    }
+        comunidades.put(nome, new Comunidade(nome, descricao, dono));}
 
     @Override
     public String getDescricao(String nome) throws ComunidadeNaoExisteException {
