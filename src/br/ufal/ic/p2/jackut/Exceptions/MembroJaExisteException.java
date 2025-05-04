@@ -23,7 +23,8 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorComunidades;
  *
  * @see IGerenciadorComunidades#adicionarmembro(String, String)
  */
-public class MembroJaExisteException extends Exception {
+public class MembroJaExisteException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão indicando a duplicidade de membro.

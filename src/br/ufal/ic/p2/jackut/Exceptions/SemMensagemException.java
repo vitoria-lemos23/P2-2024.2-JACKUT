@@ -20,7 +20,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * </ul>
  *
  */
-public class SemMensagemException extends Exception {
+public class SemMensagemException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão indicando a ausência de mensagens.

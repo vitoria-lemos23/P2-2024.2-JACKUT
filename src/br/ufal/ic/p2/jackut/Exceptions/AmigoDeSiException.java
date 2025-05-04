@@ -20,7 +20,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#adicionarAmigo
  */
-public class AmigoDeSiException extends Exception {
+public class AmigoDeSiException extends Exception
+{
 
     /**
      * Constrói uma nova exceção com a mensagem padrão.

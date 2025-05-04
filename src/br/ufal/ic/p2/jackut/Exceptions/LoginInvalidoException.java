@@ -24,7 +24,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @author Vitória Lemos
  * @see br.ufal.ic.p2.jackut.Jackut#criarUsuario
  */
-public class LoginInvalidoException extends Exception {
+public class LoginInvalidoException extends Exception
+{
 
     /**
      * Constrói a exceção com a mensagem padrão "Login inválido.".

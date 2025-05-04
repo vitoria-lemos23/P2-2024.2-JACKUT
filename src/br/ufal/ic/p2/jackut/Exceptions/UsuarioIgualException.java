@@ -24,7 +24,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#criarUsuario
  * @see br.ufal.ic.p2.jackut.Users
  */
-public class UsuarioIgualException extends Exception {
+public class UsuarioIgualException extends Exception
+{
 
     /**
      * Constrói a exceção com a mensagem padrão "Conta com esse nome já existe.".

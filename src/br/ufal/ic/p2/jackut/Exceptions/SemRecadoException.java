@@ -23,7 +23,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#lerRecado
  * @see br.ufal.ic.p2.jackut.Users#lerRecado
  */
-public class SemRecadoException extends Exception {
+public class SemRecadoException extends Exception
+{
 
     /**
      * Constrói a exceção com a mensagem padrão "Não há recados.".

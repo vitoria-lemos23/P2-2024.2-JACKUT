@@ -23,7 +23,8 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
  *
  * @see InimigoDeSiException Exceção similar para auto-inimizade
  */
-public class NaoPodeSerFaDeSiException extends Exception {
+public class NaoPodeSerFaDeSiException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão que descreve a restrição de auto-idolatria.

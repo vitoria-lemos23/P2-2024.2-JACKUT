@@ -23,7 +23,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#adicionarAmigo
  * @see br.ufal.ic.p2.jackut.Jackut#enviarRecado
  */
-public class UsuarioNaoEncontradoException extends Exception {
+public class UsuarioNaoEncontradoException extends Exception
+{
 
     /**
      * Constrói a exceção com a mensagem padrão "Usuário não cadastrado.".

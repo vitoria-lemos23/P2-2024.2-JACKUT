@@ -21,7 +21,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#adicionarAmigo
  * @see br.ufal.ic.p2.jackut.Users#ehAmigo
  */
-public class AmigoJaExistenteException extends Exception {
+public class AmigoJaExistenteException extends Exception
+{
 
     /**
      * Constrói uma nova exceção com a mensagem padrão.
