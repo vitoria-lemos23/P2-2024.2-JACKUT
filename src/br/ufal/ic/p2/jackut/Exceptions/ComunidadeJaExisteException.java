@@ -23,7 +23,8 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorComunidades;
  *
  * @see IGerenciadorComunidades#criarComunidade(String, String, String)
  */
-public class ComunidadeJaExisteException extends Exception {
+public class ComunidadeJaExisteException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão contendo informações sobre o erro de duplicidade.

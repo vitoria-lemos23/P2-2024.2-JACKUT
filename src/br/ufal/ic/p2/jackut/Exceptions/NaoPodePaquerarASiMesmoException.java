@@ -23,7 +23,8 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
  *
  *
  */
-public class NaoPodePaquerarASiMesmoException extends Exception {
+public class NaoPodePaquerarASiMesmoException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão que descreve a restrição de auto-paquera.

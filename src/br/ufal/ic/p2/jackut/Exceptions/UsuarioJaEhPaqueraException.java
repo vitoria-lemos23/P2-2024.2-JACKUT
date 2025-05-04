@@ -22,7 +22,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see UsuarioJaEhIdoloException Exceção similar para ídolos duplicados
  * @see UsuarioJaEhInimigoException Exceção similar para inimigos duplicados
  */
-public class UsuarioJaEhPaqueraException extends Exception {
+public class UsuarioJaEhPaqueraException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão indicando a duplicidade na lista de paqueras.

@@ -95,8 +95,7 @@ public class GerenciadorAmizades implements IGerenciadorAmizades, Serializable {
 
         // 2. Valida a sessão primeiro
         if (idSessao == null || idSessao.trim().isEmpty()) {
-            throw new UsuarioNaoEncontradoException();
-        }
+            throw new UsuarioNaoEncontradoException();}
 
 
 

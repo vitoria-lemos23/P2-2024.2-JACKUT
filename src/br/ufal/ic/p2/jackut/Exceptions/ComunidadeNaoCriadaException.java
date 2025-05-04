@@ -31,6 +31,5 @@ public class ComunidadeNaoCriadaException extends Exception {
      * Mensagem fixa: "Comunidade ainda não criada"
      */
     public ComunidadeNaoCriadaException() {
-        super("Comunidade ainda não criada");
-    }
+        super("Comunidade ainda não criada");}
 }

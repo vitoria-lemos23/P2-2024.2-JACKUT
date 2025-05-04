@@ -24,7 +24,8 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorComunidades;
  * @see IGerenciadorComunidades#getMembros(String)
  * @see IGerenciadorComunidades#getDono(String)
  */
-public class ComunidadeNaoExisteException extends Exception {
+public class ComunidadeNaoExisteException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão indicando a ausência da comunidade.
