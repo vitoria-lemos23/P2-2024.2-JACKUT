@@ -20,7 +20,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#editarPerfil
  * @see br.ufal.ic.p2.jackut.Users#getAtributo
  */
-public class AtributoNaoPreenchidoException extends Exception {
+public class AtributoNaoPreenchidoException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão "Atributo não preenchido.".

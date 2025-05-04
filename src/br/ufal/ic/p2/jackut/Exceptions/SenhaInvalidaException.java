@@ -26,7 +26,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#criarUsuario
  * @see br.ufal.ic.p2.jackut.Users
  */
-public class SenhaInvalidaException extends Exception {
+public class SenhaInvalidaException extends Exception
+{
 
     /**
      * Constrói a exceção com a mensagem padrão "Senha inválida.".

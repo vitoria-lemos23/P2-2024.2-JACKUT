@@ -21,7 +21,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#adicionarAmigo
  * @see br.ufal.ic.p2.jackut.Users#temSolicitacaoPendente
  */
-public class AmigoPendenteException extends Exception {
+public class AmigoPendenteException extends Exception
+{
 
     /**
      * Constrói uma nova exceção com a mensagem padrão.

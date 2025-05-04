@@ -16,7 +16,8 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
  *
  * @see IGerenciadorAmizades#adicionarAmigo(String, String)
  */
-public class InimigoException extends Exception {
+public class InimigoException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem personalizada para o contexto específico.

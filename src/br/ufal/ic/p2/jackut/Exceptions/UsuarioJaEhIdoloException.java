@@ -20,7 +20,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * </ul>
  *
  */
-public class UsuarioJaEhIdoloException extends Exception {
+public class UsuarioJaEhIdoloException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão indicando a duplicidade na lista de ídolos.

@@ -20,7 +20,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * </ul>
  *
  */
-public class UsuarioJaEhInimigoException extends Exception {
+public class UsuarioJaEhInimigoException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão indicando a duplicidade na lista de inimigos.

@@ -27,7 +27,8 @@ package br.ufal.ic.p2.jackut.Exceptions;
  * @see br.ufal.ic.p2.jackut.Jackut#abrirSessao
  * @see br.ufal.ic.p2.jackut.Jackut#encerrarSistema
  */
-public class SessaoInvalidaExecption extends Exception {
+public class SessaoInvalidaExecption extends Exception
+{
 
     /**
      * Constrói a exceção com a mensagem padrão "Sessão inválida.".

@@ -23,7 +23,8 @@ import br.ufal.ic.p2.jackut.Interfaces.IGerenciadorAmizades;
  * </ul>
  *
  */
-public class InimigoDeSiException extends Exception {
+public class InimigoDeSiException extends Exception
+{
 
     /**
      * Constrói a exceção com mensagem padrão que descreve a restrição de auto-inimizade.
